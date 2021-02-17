@@ -3,7 +3,7 @@ Usage:
     pcmap single <proteinA> [--distance]
     pcmap dimer  <proteinA> <proteinB> [--distance --apply]  
     pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance --apply]     
-    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance]
+    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance --ncpu --output]
 
 Options:
   -h --help     Show this screen.
@@ -13,14 +13,17 @@ Options:
   translation_triplet: three comma separated values specifying the translation vector to apply to proteinB
   offsetA: translation vector centering proteinA barycenter, offsetB must be provided.
   offsetB: translation vector centering proteinB barycenter, offsetA must be provided.
-  --distance  : distance threshold value for pairwise atomic contact, default=4.5 Angstroms
-  --apply  : apply provided tansformation to proteinA and proteinB and write their coordinates
+  --distance: distance threshold value for pairwise atomic contact, default=4.5 Angstroms
+  --apply: apply provided tansformation to proteinA and proteinB and write their coordinates
+  --cpu: thread number
+  --output: many contact map file output, default="contact_map_many.json"
 """
 
 from docopt import docopt
 import pypstruct
 from .io import * 
 import ccmap as core
+from .threads import run as computeMany
 
 arguments = docopt(__doc__)
 print(arguments)
@@ -51,32 +54,49 @@ if arguments['<proteinB>']:
         print (f"Can't parse {arguments['<proteinB>']} as second PDB record")
         exit(1)
 
-
 if arguments['many']:
-    
+    try:
+        nThread = int(arguments['--ncpu']) if arguments['--ncpu'] else 8
+        d = {'nThread' : nThread, 'deserialize' : False}
+    except:
+        print("--npu arguments is not an integer")
+        exit(1)
+    if arguments['--structures']:
+        d.update( {"structList" : arguments['--structures']} )
+    else:
+        d.update({"pdbA" : pdbA,
+                  "pdbB" : pdbB, 
+                  "transformation" : arguments['<transformation_file>'] 
+                })
+    results = computeMany(**d)
+    writeToFile(results, arguments['--output'], deserialized=False)
+    exit(0)
 
 if arguments['single']:
-    ccamp_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=False)
+    ccmap_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=False)
     print(ccamp_as_json)
     exit(0)
 
 if arguments['dimer']:
     if not arguments['--euler']:
-        ccamp_as_json = core.cmap(pdbA.atomDictorize, pdbB.atomDictorize, d=dist, encode=False)
-        print(ccamp_as_json)
+        ccmap_as_json = core.cmap(pdbA.atomDictorize,\
+                                  pdbB.atomDictorize,\
+                                  d=dist, encode=False)
+        print(ccmap_as_json)
         exit(0)    
     
     vecT = parseTransformVectors(arguments)
     if not '--offA' in arguments:
-        ccamp_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize , *vecT, apply=arguments['--apply'] )
+        ccmap_as_json = core.zmap(pdbA.atomDictorize,\
+                                  pdbB.atomDictorize , *vecT, apply=arguments['--apply'] )
     else:  
         vecO = parseOffsetVectors(arguments)
-        ccamp_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize , *vecT, **vecO, apply=arguments['--apply'] )
+        ccmap_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize , *vecT, **vecO, apply=arguments['--apply'] )
 
     print(ccamp_as_json)
 
     if arguments['--apply']:
-        # Update PDB containers from previous examples
+        # Update PDB containers 
         pdbA.setCoordinateFromDictorize(pdbA.atomDictorize)
         pdbB.setCoordinateFromDictorize(pdbB.atomDictorize)
         # Dump to coordinate files
