@@ -1,8 +1,36 @@
 import pypstruct, json
 import ccmap as core
 from .threads import run as computeMany
+
+
+def setThreadParameters(**kwargs):
+    try:
+        dist = float(kwargs['dist']) if 'dist' in kwargs else 4.5
+        assert dist > 0.0
+    except:
+        raise ValueError(f"improper distance parameter {kwargs['dist']}")
+
+    try:
+        nThread = int(kwargs['nThread']) if 'nThread' in kwargs else 8
+        assert nThread > 0
+    except:
+        raise ValueError(f"improper nThread parameter {kwargs['nThread']}")
+        
+    threadParam = { 
+        'dist'   : dist, 
+        'encode' : kwargs['encode'] if 'encode' in kwargs else False,\
+        'atomic' : kwargs['atomic'] if 'atomic' in kwargs else False,\
+        'threadNum': nThread,\
+        'deserialize': kwargs['deserialize'] if 'deserialize' in kwargs\
+                       else False
+        }
+
+    return threadParam
+
 def contactMapThroughTransform(proteinA, proteinB,\
                                eulers, translations,\
+                               offsetRec,\
+                               offsetLig,\
                                **kwargs):
     """compute several contact map accross two provided proteins
        through the applications of provided transormations.
@@ -34,7 +62,18 @@ def contactMapThroughTransform(proteinA, proteinB,\
     :type deserialize: boolean
 
     """
-def contactMap(proteinA, proteinB=None, dist=4.5, encode=False, nThread=8, deserialize=False):
+
+    threadParam = setThreadParameters(**kwargs)
+
+    pdbRec = pypstruct.parseFilePDB(proteinA)
+    pdbLig = pypstruct.parseFilePDB(proteinB)
+
+    ccmap_as_json = computeMany(pdbA=pdbRec, pdbB=pdbLig,\
+                        eulers=eulers, translations=translations,\
+                        offsetRec=offsetRec, offsetLig=offsetLig,\
+                        **threadParam)
+    return ccmap_as_json
+def contactMap(proteinA, proteinB=None, **kwargs):
     """compute contact map of provided structures
     
     First parameter can be PDB file OR a list of PDB files
@@ -70,12 +109,8 @@ def contactMap(proteinA, proteinB=None, dist=4.5, encode=False, nThread=8, deser
     :return: contact map
     :rtype: dict
     """
-    try:
-        dist = float(dist)
-        assert dist > 0.0
-    except:
-        raise ValueError(f"improper distance parameter {dist}")
-
+    
+    threadParam = setThreadParameters(**kwargs)
     try:
         if not proteinB is None:
             assert ( isinstance(proteinA, list) and isinstance(proteinB, list) )\
@@ -84,9 +119,6 @@ def contactMap(proteinA, proteinB=None, dist=4.5, encode=False, nThread=8, deser
     except:
         raise TypeError("First to pameters must have same type string or list")
 
-
-    threadParam = { 'dist'   : dist, 'encode'     : False,\
-                    'nThread': 8   , 'deserialize': False }
 
     lcMap = isinstance(proteinA, list)
     pdbREC = pypstruct.parseFilePDB(proteinA)\
@@ -103,17 +135,17 @@ def contactMap(proteinA, proteinB=None, dist=4.5, encode=False, nThread=8, deser
         if not lcMap: # Single dimer
             ccmap_as_json = core.cmap(pdbREC.atomDictorize,\
                                       pdbLIG.atomDictorize,\
-                                      d=dist, encode=encode)
+                                      **threadParam)
         else: # Many dimers
             threadParam.update({"pdbAtomListREC" : pdbREC,\
                                 "pdbAtomListLIG" : pdbLIG})
-            computeMany(**threadParam)
-    else: #Monomer(s)
+            ccmap_as_json = computeMany(**threadParam)
+    else: #Monomer(s)        
         if not lcMap: # Single monomer
             ccmap_as_json = core.cmap(pdbREC.atomDictorize,\
-                                      d=dist, encode=encode)
+                                      **threadParam)
         else: # Many monomers
             threadParam.update({"pdbAtomList" : pdbREC})
-            computeMany(**threadParam)
-    
-    return json.loads(ccmap_as_json)
+            ccmap_as_json = computeMany(**threadParam)
+    #print(ccmap_as_json)
+    return ccmap_as_json
