@@ -70,20 +70,25 @@ They will be stored into `new_receptor.pdb` and `new_ligand.pdb` files.
 
 #### Many two-body contact maps
 
-When needed, several contact map can be computed by applying a sequence of transformations to the provided RECEPTOR and LIGAND PDB files. Transformations should be described in a JSON file with the following format.
+When needed, several contact map can be computed by applying a sequence of transformations to the provided RECEPTOR and LIGAND PDB files. Transformations should be described in a JSON file format such as in the following example describing two transformations.
 
 ```json
 {
-    "euler" : [ [e1, e2, e3], ... ] ],
-    "translation" : [ [t1, t2, t3], ... ] ]
+    "euler" : [ [-1.96, 2.07, -2.35], [-0.70, 0.95, -0.53] ] ,
+    "translation" : [ [7.2, 16.8, 28.8], [21.6, -7.2, -20.4] ],
+   "recOffset": [-27.6,-8.2,-80.6],
+   "ligOffset": [-67.1,0.1, -77.3],
 }
 ```
 
 Where,
 
-* e1, e2, e3 are reepctively the $\alpha, \beta, \gamma$ Euler angles
-* t1, t2, t3 are the $x,y,z$ components of the translation vector
+* **euler** reference a list of the <span>&alpha;, &beta;, &gamma;</span> Euler angles. Each triplet is transformation specific.
+* **translation** reference a list of *x,y,z* components of one translation vector. It is transformation specific.
+* **recOffset** is the translation vector centering the receptor to coordinates origin. It is common to all transformations.
+* **ligOffset** is the translation vector centering the ligand to coordinates origin. It is common to all transformations.
 
+A file example is joined as `data/1A2K_transformations_sample.json`
 ## PYTHON module
 
 ## OUTPUT
