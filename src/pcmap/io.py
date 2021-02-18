@@ -53,7 +53,6 @@ def parseOffsetVectors(parameters):
             vecO[vKey] = tripletParser(parameters[vType])
         except:
             raise ValueError(f"Can't parse {parameters[vType]} as the {vType} vector")
-    print(vecO)
     return vecO
 
 def parseTransformationFile(file):

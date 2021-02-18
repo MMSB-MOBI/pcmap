@@ -1,7 +1,7 @@
 """Compute amino acid contact map within a single protein or across two proteins
 Usage:
     pcmap single <proteinA> [--distance]
-    pcmap dimer  <proteinA> <proteinB> [--distance --apply]  
+    pcmap dimer  <proteinA> <proteinB> [--distance]  
     pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance --apply]     
     pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance --ncpu --output]
 
@@ -26,7 +26,7 @@ import ccmap as core
 from .threads import run as computeMany
 
 arguments = docopt(__doc__)
-print(arguments)
+#print(arguments)
 
 dist = 4.5
 if arguments['--distance']:
@@ -93,7 +93,7 @@ if arguments['dimer']:
         vecO = parseOffsetVectors(arguments)
         ccmap_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize , *vecT, **vecO, apply=arguments['--apply'] )
 
-    print(ccamp_as_json)
+    print(ccmap_as_json)
 
     if arguments['--apply']:
         # Update PDB containers 
