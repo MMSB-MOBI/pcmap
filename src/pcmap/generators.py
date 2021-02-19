@@ -1,3 +1,5 @@
+from .io import parseTransformationFile, parseStructFileTabList
+
 def splitInterval(iLen, nElem):
     """Yield successive interval boundaries spanning [0, iLen]"""
     assert(nElem <= iLen)
@@ -8,6 +10,17 @@ def splitInterval(iLen, nElem):
         if i == (nElem - 1): #and iLen%nElem != 0:
             top +=  iLen%nElem
         yield (i * nWidth, top)
+
+def defaultThreadKwargs(**kwargs):
+    """Setting default thread named arguments"""
+    return {\
+        "encode" : kwargs['encode'] if "encode" in kwargs else False,\
+        "atomic" : kwargs['atomic'] if "atomic" in kwargs else False,\
+        "deserialize" : kwargs['deserialize']\
+                        if "deserialize" in kwargs\
+                        else False,\
+        "d": kwargs["d"] if "d" in kwargs else 4.5\
+    } 
 
 def lcGenerateArgs(data, oligomerState, threadNum):
     threadNum = min(threadNum, len(data))
@@ -78,7 +91,7 @@ def lzGenerateArgsFromfile(fTransformation, pdbRec, pdbLig, threadNum):
                                             offsetRec, offsetLig,\
                                             threadNum)
 
-    return threadArgs, threadKwargs
+    return threadNum, threadArgs, threadKwargs
 
 def lzGenerateArgsFromVector(pdbRec, pdbLig,\
                              eulers, translations,\

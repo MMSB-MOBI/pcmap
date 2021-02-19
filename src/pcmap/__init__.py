@@ -1,31 +1,61 @@
 import pypstruct, json
 import ccmap as core
 from .threads import run as computeMany
-
+from .ctype import isVector3F, isEvenEulerTranslationVectorList
 
 def setThreadParameters(**kwargs):
-    try:
-        dist = float(kwargs['dist']) if 'dist' in kwargs else 4.5
-        assert dist > 0.0
-    except:
-        raise ValueError(f"improper distance parameter {kwargs['dist']}")
-
+    """ Set parameters required for parrallel computing """
+    _ = setParameters(**kwargs)
     try:
         nThread = int(kwargs['nThread']) if 'nThread' in kwargs else 8
         assert nThread > 0
     except:
         raise ValueError(f"improper nThread parameter {kwargs['nThread']}")
+    _['nThread'] = nThread
+    _['deserialize'] = kwargs['deserialize'] if 'deserialize'\
+        in kwargs else True
+
+    return _
+
+def setParameters(**kwargs):
+    """ Set parameters required for contact map computation """
+    try:
+        dist = float(kwargs['dist']) if 'dist' in kwargs else 4.5
+        assert dist > 0.0
+    except:
+        raise ValueError(f"improper distance parameter {kwargs['dist']}")
         
-    threadParam = { 
-        'dist'   : dist, 
+    param = { 
+        'd'   : dist,\
         'encode' : kwargs['encode'] if 'encode' in kwargs else False,\
         'atomic' : kwargs['atomic'] if 'atomic' in kwargs else False,\
-        'threadNum': nThread,\
-        'deserialize': kwargs['deserialize'] if 'deserialize' in kwargs\
-                       else False
         }
 
-    return threadParam
+    return param
+
+def generateThroughTransform(proteinA, proteinB,\
+                            euler, translation,\
+                            offsetRec,\
+                            offsetLig,\
+                            **kwargs):
+    """ Generate the PDB conformation from specified transformation"""
+
+    if not (isVector3F(euler) and isVector3F(translation)):
+        raise ValueError(f"Improper euler {euler} or translation {translation}")
+    
+    
+    pdbRec = pypstruct.parseFilePDB(proteinA)
+    pdbLig = pypstruct.parseFilePDB(proteinB)
+
+    ccmap_as_json = core.zmap(pdbRec.atomDictorize,\
+                        pdbLig.atomDictorize,\
+                        euler, translation,\
+                        offsetRec=offsetRec, offsetLig=offsetLig,\
+                        apply=True)
+    pdbRec.setCoordinateFromDictorize(pdbRec.atomDictorize)
+    pdbLig.setCoordinateFromDictorize(pdbLig.atomDictorize)
+
+    return {"receptor_oPDB": pdbRec, "ligand_oPDB": pdbLig}    
 
 def contactMapThroughTransform(proteinA, proteinB,\
                                eulers, translations,\
@@ -58,21 +88,34 @@ def contactMapThroughTransform(proteinA, proteinB,\
     optional
     :param nThread: thread number, default=8
     :type nThread: int
-    :param deserialize: ask for contact map as dictionary (True) otherwise as string.
+    :param deserialize: ask for contact map as dictionary (True, default) otherwise as string.
     :type deserialize: boolean
 
     """
+
+    if not isEvenEulerTranslationVectorList(eulers, translations):
+        raise TypeError("Transformation vector lists are of uneven length"+\
+                        " and/or contain irregular values")
+                        
+    if not(isVector3F(offsetRec) and isVector3F(offsetLig)):
+        raise TypeError("Improper offset vectors")
+        
 
     threadParam = setThreadParameters(**kwargs)
 
     pdbRec = pypstruct.parseFilePDB(proteinA)
     pdbLig = pypstruct.parseFilePDB(proteinB)
-
+        
     ccmap_as_json = computeMany(pdbA=pdbRec, pdbB=pdbLig,\
                         eulers=eulers, translations=translations,\
                         offsetRec=offsetRec, offsetLig=offsetLig,\
                         **threadParam)
+    if threadParam['deserialize']:
+        print("blip")
+        ccmap_as_json = [ _['data'] for _ in ccmap_as_json]
+
     return ccmap_as_json
+
 def contactMap(proteinA, proteinB=None, **kwargs):
     """compute contact map of provided structures
     
@@ -109,8 +152,8 @@ def contactMap(proteinA, proteinB=None, **kwargs):
     :return: contact map
     :rtype: dict
     """
-    
     threadParam = setThreadParameters(**kwargs)
+    ccmapParam  = setParameters(**kwargs)
     try:
         if not proteinB is None:
             assert ( isinstance(proteinA, list) and isinstance(proteinB, list) )\
@@ -134,8 +177,9 @@ def contactMap(proteinA, proteinB=None, **kwargs):
 
         if not lcMap: # Single dimer
             ccmap_as_json = core.cmap(pdbREC.atomDictorize,\
-                                      pdbLIG.atomDictorize,\
-                                      **threadParam)
+                    pdbLIG.atomDictorize,\
+                    **ccmapParam)
+
         else: # Many dimers
             threadParam.update({"pdbAtomListREC" : pdbREC,\
                                 "pdbAtomListLIG" : pdbLIG})
@@ -143,9 +187,13 @@ def contactMap(proteinA, proteinB=None, **kwargs):
     else: #Monomer(s)        
         if not lcMap: # Single monomer
             ccmap_as_json = core.cmap(pdbREC.atomDictorize,\
-                                      **threadParam)
+                                      **ccmapParam)
         else: # Many monomers
             threadParam.update({"pdbAtomList" : pdbREC})
             ccmap_as_json = computeMany(**threadParam)
-    #print(ccmap_as_json)
+    
+    # straight calls to core lib must be deserialized
+    if not lcMap and threadParam['deserialize']:
+        ccmap_as_json = json.loads(ccmap_as_json)
+
     return ccmap_as_json

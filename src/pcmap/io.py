@@ -5,14 +5,7 @@ def writeToFile(data, fname, deserialized):
     """Dump data object as JSON formated string in optional filename, 
     default value for file is 'contact_map_many.json'"""
     with open(fname if fname else 'contact_map_many.json', "w") as fp:
-        if deserialized:
-            json.dump({"contact maps" : data}, fp, indent = 6)
-        else :
-            fp.write(\
-                "{\"contact maps\" : [" + \
-                    ','.join(data) + \
-                "]}")
-        #
+        json.dump({"contact maps" : data}, fp, indent = 6)
     
 def tripletParser(value):
     """ Parse comma separated string of numbers in a vector3(float)"""
@@ -83,14 +76,13 @@ def parseStructFileTabList(file):
     fieldCount = None
     with open(file, "r") as fp:
         for l in fp:
-            _ = l.rstrp().split("\t")
+            _ = l.rstrip().split()
             if not ( len(_) == 1 or len(_) == 2):
                 raise ValueError(f"Irregular structure names at {_} on input {file}")
             if fieldCount is None:
                 fieldCount = len(_)
             if fieldCount != len(_):
                 raise ValueError(f"Irregular structure count (got{len(_)} expected {fieldCount}) at {_} on input {file}")
-
             structList.append(
                         [ pypstruct.parseFilePDB(x).atomDictorize for x in _ ]
                         )

@@ -1,7 +1,8 @@
 import sys, threading, json, time, copy, os, ccmap
 import io
-from .io import parseStructFileTabList, parseTransformationFile
+#from .io import parseStructFileTabList, parseTransformationFile
 from .generators import *
+from .deserializer import lcDeserialiser, lzDeserialiser
 
 def isTransformAsFile(parameters):
     """ Test if desired operation relies of application 
@@ -21,7 +22,7 @@ def isExplicitAsFile(parameters):
     """ Test if desired operation relies on straight 
         computations over a list of PDB provided in a file
     """
-    return 'fStructList' in parameters
+    return 'structList' in parameters
            
 def isExplicitAsVector(parameters):
     """ Test if desired operation relies on straight 
@@ -63,20 +64,13 @@ def run(threadNum=8, **kwargs):
     # Thread worker reference
     wThread = None
     # Setting default thread positional arguments
-    threadArgs = []
-    # Setting default thread named arguments
-    threadKwargs = {\
-        "encode" : kwargs['encode'] if "encode" in kwargs else False,\
-        "atomic" : kwargs['atomic'] if "atomic" in kwargs else False,\
-        "deserialize" : kwargs['deserialize']\
-                        if "deserialize" in kwargs\
-                        else False\
-    } 
-    
+    threadArgs = []    
+    threadKwargs = defaultThreadKwargs(**kwargs)
+    outputFmtPipe = lzDeserialiser
     if isTransformAsFile(kwargs):
     # Create Thread parameters for list of transformation extracted from file
         wThread                   = lzThread
-        threadNum, threadArgs, _threadKwargs = lzGenerateArgsFromFile(\
+        threadNum, threadArgs, _threadKwargs = lzGenerateArgsFromfile(\
                                         kwargs['transformation'],\
                                         kwargs['pdbA'],\
                                         kwargs['pdbB'],\
@@ -84,6 +78,7 @@ def run(threadNum=8, **kwargs):
         threadKwargs.update(_threadKwargs)
     # Create Thread parameters for list of PDB files path extracted from file
     elif isExplicitAsFile(kwargs):
+        outputFmtPipe = lcDeserialiser
         wThread               = lcThread
         threadNum, threadArgs = lcGenerateArgsFromFile(\
                                         kwargs['structList'],\
@@ -103,6 +98,7 @@ def run(threadNum=8, **kwargs):
     # Create Thread parameters for a single(s) or structure pair(s) passed 
     # as atom vectors
     elif isExplicitAsVector(kwargs):
+        outputFmtPipe = lcDeserialiser
         wThread = lcThread
         args    =       [ kwargs['pdbAtomList'] ]\
                 if "pdbAtomList" in kwargs\
@@ -115,9 +111,9 @@ def run(threadNum=8, **kwargs):
     mStart     = time.time()
     output     = [ None for i in range(threadNum) ]
     threadPool = [  threading.Thread(\
-                              args = tuple( [ threadArgs[i], i, output ] )\
-                          , kwargs = threadKwargs \
-                          , target = wThread) \
+                            args = tuple( [ threadArgs[i], i, output ] )\
+                        , kwargs = threadKwargs \
+                        , target = wThread) \
                     for i in range(threadNum)\
                  ]
 
@@ -127,9 +123,11 @@ def run(threadNum=8, **kwargs):
     for th in threadPool:
         th.join()
 
-    print(f"{threadNum} threads finished in { time.time() - mStart }")        
+    print("Output type:", "deserialize" if\
+                           threadKwargs['deserialize'] else\
+                           "serialized" )
     
-    return output
+    return outputFmtPipe(output)
 
 def lcThread(*args, deserialize=False, **kwargs): 
     tStart = time.time()
@@ -137,16 +135,11 @@ def lcThread(*args, deserialize=False, **kwargs):
     assert len(tArgs) == 2 or  len(tArgs) == 1
     print(f"Starting lcThread {tNum} deserialize={deserialize}")
     
-    print( f"Shapes of ligand arrays {len(tArgs[0])}" )
+    print( f"Shape of ligand arrays {len(tArgs[0])}" )
     if len(tArgs) == 2:
-        print( f"Shapes of receptor arrays {len(tArgs[1])}" )
+        print( f"Shape of receptor arrays {len(tArgs[1])}" )
     
-    _ = ccmap.lcmap(*tArgs, **kwargs)
-    
-    if deserialize:
-        results[tNum] = [ json.loads(st) for st in _ ]
-    else:
-        results[tNum] = _
+    results[tNum] = ccmap.lcmap(*tArgs, **kwargs)
     print(f"End of lcThread {tNum} in { time.time() - tStart }")          
     return
 
@@ -154,12 +147,7 @@ def lzThread(*args, deserialize=False, **kwargs):
     tStart = time.time()
     tArgs, tNum, results = args
     print(f"Starting lzThread {tNum} deserialize={deserialize}")
-    #print(f"lzmap w/ {tArgs} {kwargs}")
-    _ = ccmap.lzmap(*tArgs, **kwargs)
-    
-    if deserialize:
-        results[tNum] = json.loads(_)
-    else:
-        results[tNum] = _    
+
+    results[tNum] = ccmap.lzmap(*tArgs, **kwargs)
     print(f"End of lzThread {tNum} in { time.time() - tStart }")          
     return

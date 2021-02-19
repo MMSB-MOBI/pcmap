@@ -1,9 +1,10 @@
 """Compute amino acid contact map within a single protein or across two proteins
 Usage:
-    pcmap single <proteinA> [--distance]
-    pcmap dimer  <proteinA> <proteinB> [--distance]  
-    pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance --apply]     
-    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance --ncpu --output]
+    pcmap single <proteinA> [--distance --encode]
+    pcmap dimer  <proteinA> <proteinB> [--distance --encode]  
+    pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance --encode --apply]     
+    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance --ncpu --output --encode]
+    pcmap -h | --help
 
 Options:
   -h --help     Show this screen.
@@ -15,7 +16,8 @@ Options:
   offsetB: translation vector centering proteinB barycenter, offsetA must be provided.
   --distance: distance threshold value for pairwise atomic contact, default=4.5 Angstroms
   --apply: apply provided tansformation to proteinA and proteinB and write their coordinates
-  --cpu: thread number
+  --cpu: thread number, default=8
+  --encode: encode amino acid contact as integers, default=False
   --output: many contact map file output, default="contact_map_many.json"
 """
 
@@ -38,26 +40,29 @@ if arguments['--distance']:
         exit(1)
 
 pdbA = None
-try:
-    pdbA = pypstruct.parseFilePDB(arguments['<proteinA>'])
-    assert not pdbA is None
-except:
-    print (f"Can't parse {arguments['<proteinA>']} as first PDB record")
-    exit(1)
-
-pdbB = None
-if arguments['<proteinB>']:
+if not arguments['--structures']:
     try:
-        pdbB = pypstruct.parseFilePDB(arguments['<proteinB>'])
-        assert not pdbB is None
+        pdbA = pypstruct.parseFilePDB(arguments['<proteinA>'])
+        assert not pdbA is None
     except:
-        print (f"Can't parse {arguments['<proteinB>']} as second PDB record")
+        print (f"Can't parse {arguments['<proteinA>']} as first PDB record")
         exit(1)
 
+    pdbB = None
+    if arguments['<proteinB>']:
+        try:
+            pdbB = pypstruct.parseFilePDB(arguments['<proteinB>'])
+            assert not pdbB is None
+        except:
+            print (f"Can't parse {arguments['<proteinB>']} as second PDB record")
+            exit(1)
+
+bEncode = arguments['--encode']
 if arguments['many']:
     try:
         nThread = int(arguments['--ncpu']) if arguments['--ncpu'] else 8
-        d = {'nThread' : nThread, 'deserialize' : False}
+        d = {"nThread": nThread, "deserialize": True,\
+             "d":dist, "encode": bEncode}
     except:
         print("--npu arguments is not an integer")
         exit(1)
@@ -69,29 +74,33 @@ if arguments['many']:
                   "transformation" : arguments['<transformation_file>'] 
                 })
     results = computeMany(**d)
-    writeToFile(results, arguments['--output'], deserialized=False)
+    writeToFile(results, arguments['--output'])
     exit(0)
 
 if arguments['single']:
-    ccmap_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=False)
-    print(ccamp_as_json)
+    ccmap_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=bEncode)
+    print(ccmap_as_json)
     exit(0)
 
 if arguments['dimer']:
     if not arguments['--euler']:
         ccmap_as_json = core.cmap(pdbA.atomDictorize,\
                                   pdbB.atomDictorize,\
-                                  d=dist, encode=False)
+                                  d=dist, encode=bEncode)
         print(ccmap_as_json)
         exit(0)    
     
     vecT = parseTransformVectors(arguments)
     if not '--offA' in arguments:
         ccmap_as_json = core.zmap(pdbA.atomDictorize,\
-                                  pdbB.atomDictorize , *vecT, apply=arguments['--apply'] )
+                                  pdbB.atomDictorize,\
+                                  *vecT, apply=arguments['--apply'],
+                                  d=dist,
+                                  encode=bEncode)
     else:  
         vecO = parseOffsetVectors(arguments)
-        ccmap_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize , *vecT, **vecO, apply=arguments['--apply'] )
+        ccmap_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize,\
+            *vecT, **vecO, d=dist, apply=arguments['--apply'], encode=bEncode)
 
     print(ccmap_as_json)
 
