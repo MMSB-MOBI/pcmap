@@ -1,9 +1,9 @@
 """Compute amino acid contact map within a single protein or across two proteins
 Usage:
-    pcmap single <proteinA> [--distance --encode]
-    pcmap dimer  <proteinA> <proteinB> [--distance --encode]  
-    pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance --encode --apply]     
-    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance --ncpu --output --encode]
+    pcmap single <proteinA> [--distance=<distance> --encode]
+    pcmap dimer  <proteinA> <proteinB> [--distance=<distance> --encode]  
+    pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance=<distance> --encode --apply]     
+    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance=<distance> --ncpu=<thread_num> --output=<filename> --encode]
     pcmap -h | --help
 
 Options:

@@ -1,7 +1,7 @@
 import json
 import pypstruct
 
-def writeToFile(data, fname, deserialized):
+def writeToFile(data, fname):
     """Dump data object as JSON formated string in optional filename, 
     default value for file is 'contact_map_many.json'"""
     with open(fname if fname else 'contact_map_many.json', "w") as fp:

@@ -1,5 +1,6 @@
 # pcmap : A python module to compute contact map of proteins
-BLABLABLA
+pcmap is a PYTHON 3.X library designed to compute pairwise amino acid contacts in protein stuctures. Structures must be provided as PDB coordinates files. Contacts are computed inside a single PDB file or across two PDB files structures. The library can compute one to thousands sets of contacts. Results are produced in JSON format and contacts are encoded in a simple dictionary structure described in the **OUTPUT** section.
+
 ## Installation
 `pip install pcmap`
 
@@ -16,13 +17,11 @@ pcmap use the [ccmap package](https://github.com/MMSB-MOBI/ccmap) to compute con
 * python3.8/OSX.10.14.6
 * python3.8/Ubuntu LTS
 
-
 ## Data and testing
 
 The installation folder provides a `data` folder which stores the necessary elements for testing.
 
-
-```
+```bash
 .
 +-- README.md
 +-- data
@@ -56,19 +55,19 @@ Just pass the name of the PDB file.
 
 #### Many one-body contact maps
 
-Pass a file containing the list of protein to compute in the simplest format, one PDB file per line:
+Pass a file containing the list of protein as a text file with one PDB file per line:
 
 #### **`sample.lst`**
-
 ```txt
 data/1A2K_r_u.pdb
 data/1A2K_l_u.pdb
 ```
 
 And pass it to the cli
-`python -m pcmap dimer data/1A2K_r_u.pdb data/1A2K_l_u.pdb`
+`python -m pcmap many --structures=sample.lst`
 
 #### Computing many two-body contact map
+
 Again, pass a file containing the list of proteins to compute in tabulated format with two PDB files per line:
 
 #### **`sample_dimer.lst`**
@@ -88,7 +87,7 @@ When dealing with a two body system, it is often convenient to provide the initi
 #### Single two-body contact map
 As an example consider the following command:
 
-```
+```shell
 python -m pcmap dimer data/1A2K_r_u.pdb data/1A2K_l_u.pdb\
 --euler=-1.961,2.066,-2.354 --trans=7.199,16.800,28.799\
 --offA=-27.553,-8.229,-80.604 --offB=-67.006,0.11,-77.27
@@ -143,10 +142,11 @@ If True, contacts are returned as integers. Each integer encoding one pair of at
 
 ##### --atomic
 
+If True, all atomic contacts are reported.
 
 ## PYTHON module
 
-The librairy can be used as a Python module to be assemble in the pipeline/program of your choice.
+The librairy can be used as a Python module to assemble the pipeline/program of your choice.
 First we need to import it.
 
 ```python
@@ -155,8 +155,8 @@ import pcmap
 
 The **pcmap** modules exposes the two following functions:
 
-- *contactMap*
-- *contactMapThroughTransform*
+* *contactMap*
+* *contactMapThroughTransform*
 
 ### The **contactMap** API
 
@@ -164,8 +164,9 @@ The **pcmap** modules exposes the two following functions:
 contactMap(proteinA, proteinB=None, **kwargs)
 ```
  
- The type of the positianl parameters controls the function behaviouf
- First parameter can be PDB file OR a list of PDB files. Second parameter can be PDB file OR a list of PDB files.
+ The type of the positional parameters controls the function behaviour.
+
+ First parameter can be a PDB file OR a list of PDB files. Second parameter is optional and can also be a PDB file OR a list of PDB files.
  
 ##### Provided with a PDB file as single parameters:
 
@@ -177,20 +178,21 @@ Compute the amino acid contactmap between the two structures
 
 ##### Provided with a list of PDB files as single parameter:
 
-Compute the all internal amino acid contact map of all structures indvidually.
+Compute the internal amino acid contact maps of each structure indvidually.
 
 ##### Provided with a list of PDB files as second parameter:
 
-Compute the amino acid contactmap accross pair of structures at identical positions in the two lists.
+Compute the amino acid contact map of each pair of structures at identical positions accross the two lists.
 
 #### Examples
+
 ```python
 # This will compute an internal contact map
 c2 = pcmap.contactMap("data/1A2K_r_u.pdb")
-# This will compute contact across the two structures
+# This will compute the contact map across the two structures
 c1 = pcmap.contactMap("data/1A2K_r_u.pdb", "data/1A2K_l_u.pdb")
-
 ```
+
 ### The contactMapThroughTransform API
 
 ```python
@@ -212,12 +214,33 @@ The *offsetLig* parameter allows to pass a single translation vector to center t
 
 ### module API options
 
-Both functions share the same set of named parameters:
+Both **contactMap**and **contactMapThroughTransform** functions share the same set of named parameters:
 
-* *dist*: cotnact threshold distance[default 4.5]
+* *dist*: contact threshold distance[default 4.5]
 * *encode*: integer contact encoding[default=False]
 * *threadNum*: maximal number of allowed threads[default=8]
 * *deserialize*: get results as python dictionary if True, string otherwise [default=True]
 
-
 ## OUTPUT
+
+Amino acid are ranked according to their residue number and chain identifier in the PDB record. Contacts are registred in a one-versus-many fashion: one "root" residue, many "partners" residue, the one residue having the lowest rank. This ensures that parwise contact are registred only once.
+The corresponding JSON format is the following:
+
+```json
+{'type': 'contactList',
+ 'data': [ 
+        {'root': {'resID': '2 ', 'chainID': 'A'},
+            'partners': [ {'resID': '7 ', 'chainID': 'A'},
+                        {'resID': '74 ', 'chainID': 'A'}
+                    ]
+        },
+        {'root': {'resID': '9 ', 'chainID': 'A'},
+        'partners': [ {'resID': '77 ', 'chainID': 'A'},
+                        {'resID': '78 ', 'chainID': 'A'}
+                    ]
+        }
+    ]
+}
+```
+
+In this example, the residue 2 and 9 of chain A respectively form contacts with residues 7,74 and 77,78 of the same chain.

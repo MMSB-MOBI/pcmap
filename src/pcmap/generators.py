@@ -23,6 +23,7 @@ def defaultThreadKwargs(**kwargs):
     } 
 
 def lcGenerateArgs(data, oligomerState, threadNum):
+    """Setting thread arguments for lc executions"""
     threadNum = min(threadNum, len(data))
     threadArgs = []
     for x,y in splitInterval(len(data), threadNum):
