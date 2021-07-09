@@ -1,9 +1,9 @@
 """Compute amino acid contact map within a single protein or across two proteins
 Usage:
-    pcmap single <proteinA> [--distance=<distance> --encode]
-    pcmap dimer  <proteinA> <proteinB> [--distance=<distance> --encode]  
-    pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance=<distance> --encode --apply]     
-    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance=<distance> --ncpu=<thread_num> --output=<filename> --encode]
+    pcmap single <proteinA> [--distance=<distance> --encode --atomic]
+    pcmap dimer  <proteinA> <proteinB> [--distance=<distance> --encode --atomic]  
+    pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance=<distance> --encode --apply --atomic]     
+    pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance=<distance> --ncpu=<thread_num> --output=<filename> --encode --atomic]
     pcmap -h | --help
 
 Options:
@@ -18,6 +18,7 @@ Options:
   --apply: apply provided tansformation to proteinA and proteinB and write their coordinates
   --cpu: thread number, default=8
   --encode: encode amino acid contact as integers, default=False
+  --atomic: output pairwise atomic contact instead of residue's, default=False
   --output: many contact map file output, default="contact_map_many.json"
 """
 
@@ -58,11 +59,13 @@ if not arguments['--structures']:
             exit(1)
 
 bEncode = arguments['--encode']
+bAtomic = arguments['--atomic']
+
 if arguments['many']:
     try:
         nThread = int(arguments['--ncpu']) if arguments['--ncpu'] else 8
         d = {"nThread": nThread, "deserialize": True,\
-             "d":dist, "encode": bEncode}
+             "d":dist, "encode": bEncode, "atomic" : bAtomic}
     except:
         print("--npu arguments is not an integer")
         exit(1)
@@ -78,7 +81,7 @@ if arguments['many']:
     exit(0)
 
 if arguments['single']:
-    ccmap_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=bEncode)
+    ccmap_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=bEncode, atomic=bAtomic)
     print(ccmap_as_json)
     exit(0)
 
@@ -86,7 +89,7 @@ if arguments['dimer']:
     if not arguments['--euler']:
         ccmap_as_json = core.cmap(pdbA.atomDictorize,\
                                   pdbB.atomDictorize,\
-                                  d=dist, encode=bEncode)
+                                  d=dist, encode=bEncode, atomic=bAtomic)
         print(ccmap_as_json)
         exit(0)    
     
@@ -96,11 +99,12 @@ if arguments['dimer']:
                                   pdbB.atomDictorize,\
                                   *vecT, apply=arguments['--apply'],
                                   d=dist,
-                                  encode=bEncode)
+                                  encode=bEncode, atomic=bAtomic)
     else:  
         vecO = parseOffsetVectors(arguments)
         ccmap_as_json = core.zmap(pdbA.atomDictorize, pdbB.atomDictorize,\
-            *vecT, **vecO, d=dist, apply=arguments['--apply'], encode=bEncode)
+            *vecT, **vecO, d=dist, apply=arguments['--apply'], encode=bEncode,\
+            atomic=bAtomic)
 
     print(ccmap_as_json)
 
