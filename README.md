@@ -140,9 +140,13 @@ Define the maximal pairwise distance between two heavy atoms to register amino a
 
 If True, contacts are returned as integers. Each integer encoding one pair of atoms/residues positions in contact with this simple formula.
 
-##### --atomic
+##### --atomic [default=False]
 
 If True, all atomic contacts are reported.
+
+##### --rich [default=False]
+
+If True, add cartesian coordinates to contact map, only compatible with one single body atomic computation
 
 ## PYTHON module
 
@@ -270,4 +274,3 @@ which will output (only a sample is shown here):
     ]
 }
 ```
-
