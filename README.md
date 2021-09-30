@@ -49,13 +49,19 @@ This will compute the pairwise amino acid contact within the molecule.
 
 ##### Single one-body contact map
 
-Just pass the name of the PDB file.
+Just pass the name of the PDB file to the `single` command.
 
-`python -m pcmap dimer data/1A2K_r_u.pdb data/1A2K_l_u.pdb`
+`python -m pcmap single data/1A2K_r_u.pdb`
+
+##### Single two-body contact map
+
+Just pass the name of two PDB files to the `dimer` command.
+
+`python -m pcmap single data/1A2K_r_u.pdb`
 
 #### Many one-body contact maps
 
-Pass a file containing the list of protein as a text file with one PDB file per line:
+Create a file containing the list of protein as a text file with one PDB file per line:
 
 #### **`sample.lst`**
 ```txt
@@ -63,7 +69,7 @@ data/1A2K_r_u.pdb
 data/1A2K_l_u.pdb
 ```
 
-And pass it to the cli
+And pass it to the `many` command
 `python -m pcmap many --structures=sample.lst`
 
 #### Computing many two-body contact map
@@ -167,11 +173,11 @@ The **pcmap** modules exposes the two following functions:
 ```python
 contactMap(proteinA, proteinB=None, **kwargs)
 ```
- 
- The type of the positional parameters controls the function behaviour.
 
- First parameter can be a PDB file OR a list of PDB files. Second parameter is optional and can also be a PDB file OR a list of PDB files.
- 
+The type of the positional parameters controls the function behaviour.
+
+First parameter can be a PDB file OR a list of PDB files. Second parameter is optional and can also be a PDB file OR a list of PDB files.
+
 ##### Provided with a PDB file as single parameters:
 
 Compute the internal amino acid contact map of the structure
@@ -250,6 +256,7 @@ The corresponding JSON format is the following:
 In this example, the residue 2 and 9 of chain A respectively form contacts with residues 7,74 and 77,78 of the same chain.
 
 ### Enriched atomic contact map output
+
 In addition to their names and contact distances, the cartesian coordinates of atoms in contacts can be obtained by passing the enrich parameter with a `True` value.
 
 This option is only avaible for the computation of **one single body** contact map. As an example, consider the following call,
@@ -257,7 +264,7 @@ This option is only avaible for the computation of **one single body** contact m
 contactMap("data/nyxB_monomerB.pdb", atomic=True, enrich=True)
 ```
 
-which will output (only a sample is shown here):
+which will return (only a sample is shown here):
 
 ```json
 {'type': 'atomic_rich',
