@@ -244,3 +244,30 @@ The corresponding JSON format is the following:
 ```
 
 In this example, the residue 2 and 9 of chain A respectively form contacts with residues 7,74 and 77,78 of the same chain.
+
+### Enriched atomic contact map output
+In addition to their names and contact distances, the cartesian coordinates of atoms in contacts can be obtained by passing the enrich parameter with a `True` value.
+
+This option is only avaible for the computation of **one single body** contact map. As an example, consider the following call,
+```python
+contactMap("data/nyxB_monomerB.pdb", atomic=True, enrich=True)
+```
+
+which will output (only a sample is shown here):
+
+```json
+{'type': 'atomic_rich',
+ 'data': [
+    (('N', 'ALA', '16 ', 'B', 29.392, -64.804, 30.479),
+     ('CA', 'ALA', '16 ', 'B', 30.18, -65.518, 29.475),
+    1.46),
+    (('N', 'ALA', '16 ', 'B', 29.392, -64.804, 30.479),
+    ('N', 'PHE', '17 ', 'B', 30.994, -63.28, 28.948),
+    2.69),
+    (('CA', 'ALA', '16 ', 'B', 30.18, -65.518, 29.475),
+    ('N', 'ALA', '16 ', 'B', 29.392, -64.804, 30.479),
+    1.46)
+    ]
+}
+```
+

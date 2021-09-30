@@ -2,6 +2,7 @@ import pypstruct, json
 import ccmap as core
 from .threads import run as computeMany
 from .ctype import isVector3F, isEvenEulerTranslationVectorList
+from .plugins import enrich_map, assert_enrich_valid
 
 def setThreadParameters(**kwargs):
     """ Set parameters required for parrallel computing """
@@ -116,7 +117,7 @@ def contactMapThroughTransform(proteinA, proteinB,\
 
     return ccmap_as_json
 
-def contactMap(proteinA, proteinB=None, **kwargs):
+def contactMap(proteinA, proteinB=None, enrich=False, **kwargs):
     """compute contact map of provided structures
     
     First parameter can be PDB file OR a list of PDB files
@@ -162,8 +163,10 @@ def contactMap(proteinA, proteinB=None, **kwargs):
     except:
         raise TypeError("First to pameters must have same type string or list")
 
-
     lcMap = isinstance(proteinA, list)
+
+    assert_enrich_valid(proteinA, proteinB, enrich, **kwargs)
+
     pdbREC = pypstruct.parseFilePDB(proteinA)\
              if not lcMap\
              else [ pypstruct.parseFilePDB(_).atomDictorize\
@@ -195,5 +198,11 @@ def contactMap(proteinA, proteinB=None, **kwargs):
     # straight calls to core lib must be deserialized
     if not lcMap and threadParam['deserialize']:
         ccmap_as_json = json.loads(ccmap_as_json)
+
+    # Add atom informations, for students project purpose
+    # We may move it to cmap package later
+    if "atomic" in kwargs:
+        if not lcMap and enrich and not proteinB and kwargs['atomic']:            
+            return enrich_map(ccmap_as_json, pdbREC)
 
     return ccmap_as_json
