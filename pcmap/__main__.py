@@ -1,6 +1,6 @@
 """Compute amino acid contact map within a single protein or across two proteins
 Usage:
-    pcmap single <proteinA> [--distance=<distance> --encode --atomic]
+    pcmap single <proteinA> [--distance=<distance> --encode --atomic --rich]
     pcmap dimer  <proteinA> <proteinB> [--distance=<distance> --encode --atomic]  
     pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance=<distance> --encode --apply --atomic]     
     pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance=<distance> --ncpu=<thread_num> --output=<filename> --encode --atomic]
@@ -10,23 +10,27 @@ Options:
   -h --help     Show this screen.
   proteinA: protein structure in PDB format
   proteinB: protein structure in PDB format
-  euler_triplet: three comma separated values specifting the vector of Euler angle rotation to apply to proteinB
-  translation_triplet: three comma separated values specifying the translation vector to apply to proteinB
+  euler_triplet: three commas separated values specifting the vector of Euler angle rotation to apply to proteinB
+  translation_triplet: three commas separated values specifying the translation vector to apply to proteinB
   offsetA: translation vector centering proteinA barycenter, offsetB must be provided.
   offsetB: translation vector centering proteinB barycenter, offsetA must be provided.
   --distance: distance threshold value for pairwise atomic contact, default=4.5 Angstroms
   --apply: apply provided tansformation to proteinA and proteinB and write their coordinates
   --cpu: thread number, default=8
-  --encode: encode amino acid contact as integers, default=False
+  --encode: encode amino acid contacts as integers, default=False
+  --rich: add cartesian coordinates to contact map output, only compatible with one single body atomic computation, default=False
   --atomic: output pairwise atomic contact instead of residue's, default=False
   --output: many contact map file output, default="contact_map_many.json"
 """
 
 from docopt import docopt
+from pcmap.plugins import assert_enrich_valid
 import pypstruct
 from .io import * 
 import ccmap as core
 from .threads import run as computeMany
+from .plugins import assert_enrich_valid, enrich_map
+import json
 
 arguments = docopt(__doc__)
 #print(arguments)
@@ -60,6 +64,7 @@ if not arguments['--structures']:
 
 bEncode = arguments['--encode']
 bAtomic = arguments['--atomic']
+bEnrich = arguments['--rich']
 
 if arguments['many']:
     try:
@@ -81,7 +86,14 @@ if arguments['many']:
     exit(0)
 
 if arguments['single']:
-    ccmap_as_json = core.cmap(pdbA.atomDictorize, d=dist, encode=bEncode, atomic=bAtomic)
+    if bEnrich and not bAtomic:
+        raise ValueError('Enriching contact map requires atomic contact map computation, '\
+                       + 'please set "--atomic" flag')
+    ccmap_as_json = core.cmap(pdbA.atomDictorize,\
+                            d=dist, encode=bEncode, atomic=bAtomic)
+    if bEnrich:
+        _ = json.loads(ccmap_as_json)
+        ccmap_as_json = json.dumps( enrich_map(_, pdbA), indent=4)
     print(ccmap_as_json)
     exit(0)
 
