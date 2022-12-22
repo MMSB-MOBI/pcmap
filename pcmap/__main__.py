@@ -4,6 +4,7 @@ Usage:
     pcmap dimer  <proteinA> <proteinB> [--distance=<distance> --encode --atomic]  
     pcmap dimer  <proteinA> <proteinB> --euler=<euler_triplet> --trans=<translation_triplet> [(--offA=<offsetA> --offB=<offsetB>)] [--distance=<distance> --encode --apply --atomic]     
     pcmap many   (--structures=<structureList> | <proteinA> <proteinB> <transformation_file>) [--distance=<distance> --ncpu=<thread_num> --output=<filename> --encode --atomic]
+    pcmap sasa <tpr_file> <xtc_file> [--npos=<number> --csz=<number>]
     pcmap -h | --help
 
 Options:
@@ -20,20 +21,53 @@ Options:
   --encode: encode amino acid contacts as integers, default=False
   --rich: add cartesian coordinates to contact map output, only compatible with one single body atomic computation, default=False
   --atomic: output pairwise atomic contact instead of residue's, default=False
-  --output: many contact map file output, default="contact_map_many.json"
+  --output: many contact map or many sasa file output, default="contact_map_many.json" OR "sasa_many.json"
+  TPR_FILE: simulation file TPR
+  XTC_FILE: simulation file XTC
+  --npos: number of snapshot to process, default=10 
+  --csz : chunk size, default=5
+
 """
 
 from docopt import docopt
 from pcmap.plugins import assert_enrich_valid
 import pypstruct
 from .io import * 
+from .sasa.generator import run_with_pbar as compute_sasa_frame
 import ccmap as core
 from .threads import run as computeMany
 from .plugins import assert_enrich_valid, enrich_map
 import json
+import MDAnalysis as md
 
 arguments = docopt(__doc__)
 #print(arguments)
+
+if arguments['sasa']:
+    n_poses = 10
+    if arguments['--npos']:
+        try:
+            n_poses = int(arguments['--npos'])
+            assert n_poses > 0
+        except:
+            print (f"Can't parse {arguments['--npos']} as number of poses")
+            exit(1)
+
+    chunk_sz = 5
+    if arguments['--csz']:
+        try:
+            chunk_sz = int(arguments['--csz'])
+            assert chunk_sz > 0
+        except:
+            print (f"Can't parse {arguments['--csz']} as number of poses per chunck")
+            exit(1)
+    print("Reading trajectory files...")
+    ucg = md.Universe(arguments['<tpr_file>'],arguments['<xtc_file>'])
+    data = compute_sasa_frame(ucg, n_poses, chunk_sz, probe_radius=1.4, ncpu=8)
+    fout = arguments['--output'] if arguments['--output'] else "sasa_many.json"
+    with open(fout, 'w') as fp:
+        fp.write(str(data))
+    exit(0)
 
 dist = 4.5
 if arguments['--distance']:

@@ -45,68 +45,9 @@ def run( pdbDictorizedAsList, threadNum=8, **kwargs ):
         th.join()
     
     return output
-        ## END OF ..
-'''
-    outputFmtPipe = lzDeserialiser
-    if isTransformAsFile(kwargs):
-    # Create Thread parameters for list of transformation extracted from file
-        wThread                   = lzThread
-        threadNum, threadArgs, _threadKwargs = lzGenerateArgsFromfile(\
-                                        kwargs['transformation'],\
-                                        kwargs['pdbA'],\
-                                        kwargs['pdbB'],\
-                                        threadNum)
-        threadKwargs.update(_threadKwargs)
-    # Create Thread parameters for list of PDB files path extracted from file
-    elif isExplicitAsFile(kwargs):
-        outputFmtPipe = lcDeserialiser
-        wThread               = lcThread
-        threadNum, threadArgs = lcGenerateArgsFromFile(\
-                                        kwargs['structList'],\
-                                        threadNum)
-    # Create Thread parameters for list of transformation passed as parameters
-    elif isTransformAsVector(kwargs):
-        wThread                              = lzThread
-        threadNum, threadArgs, _threadKwargs = lzGenerateArgsFromVector(\
-                                                kwargs['pdbA'],\
-                                                kwargs['pdbB'],\
-                                                kwargs['eulers'],\
-                                                kwargs['translations'],\
-                                                kwargs['offsetRec'],\
-                                                kwargs['offsetLig'],\
-                                                threadNum)
-        threadKwargs.update(_threadKwargs)
-    # Create Thread parameters for a single(s) or structure pair(s) passed 
-    # as atom vectors
-    elif isExplicitAsVector(kwargs):
-        outputFmtPipe = lcDeserialiser
-        wThread = lcThread
-        args    =       [ kwargs['pdbAtomList'] ]\
-                if "pdbAtomList" in kwargs\
-                else [ kwargs['pdbAtomListREC'], kwargs['pdbAtomListREC'] ]
-        threadNum, threadArgs = lcGenerateArgsFromVector(\
-                                    *args, threadNum=threadNum)
-    else:
-        raise TypeError("Unspecified multithreading type")
-    
-    mStart     = time.time()
-    output     = [ None for i in range(threadNum) ]
-    threadPool = [  threading.Thread(\
-                            args = tuple( [ threadArgs[i], i, output ] )\
-                        , kwargs = threadKwargs \
-                        , target = wThread) \
-                    for i in range(threadNum)\
-                 ]
 
-    for th in threadPool:
-        th.start()
 
-    for th in threadPool:
-        th.join()
+# Alternative PoolExecutor
 
-    print("Output type:", "deserialize" if\
-                           threadKwargs['deserialize'] else\
-                           "serialized" )
-    
-    return outputFmtPipe(output)
-'''
+def run_over_np_frame(frame_as_np_arr):
+    pass
