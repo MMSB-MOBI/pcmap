@@ -2,8 +2,18 @@ from pypstruct import parseFilePDB
 import ccmap as core
 from .threads import run as compute_many_sasa
 from .atom_map import atom_default_radii
+from .generator import run_with_pbar as compute_sasa_frame
+from .dto import SASA_Results
+from MDAnalysis import Universe
 
 
+def compute_multi_sasa_from_frame(frame:Universe, npos=None, step=1, selector="all", chunk_sz=5, probe=1.4, ncpu=8):
+    _ = compute_sasa_frame(frame, npos, chunk_sz, probe, ncpu, selector=selector, step=step)
+    res = SASA_Results()
+    res.parse(_)
+    return res
+
+## We need to cleanup this simple asa calls below
 def setThreadParameters(**kwargs):
     """ Set parameters required for sasa computation  """
     try:
