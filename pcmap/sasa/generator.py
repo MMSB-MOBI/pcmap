@@ -4,8 +4,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from .cg_vdw_map_utils import generate_VDW_dict_from_universe
 import numpy as np
 from ..io import is_notebook
+
 from tqdm import *
-from tqdm.notebook import tqdm as ipython_tqdm
+#from tqdm.notebook import tqdm as ipython_tqdm
+
+#from tqdm.autonotebook import tqdm
 
 def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map, probe_radius=1.4):
 
@@ -28,8 +31,8 @@ def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map
         max_frame = len(trajectory)
     max_frame = max_frame if max_frame < len(trajectory) and max_frame > 0 else len(trajectory)
     #print(f"Processing a total of {max_frame} trajectory elements in {chunk_size} long chunks")
-    steps_log = " " if step == 1 else f" [skip step { step}]"
-    log = f"Processing a total of {max_frame} snapshots of {len(names)} particules each" + steps_log
+    steps_log = " " if step == 1 else f" [skip step {step}]"
+    log = f"Computing SASA w/ a {probe_radius}A radius probe over a total of {max_frame} snapshots of {len(names)} particles each" + steps_log
     def _iter():
         positions_buffer = []
         _n = 0 # all items
@@ -65,7 +68,7 @@ def run_with_pbar(mda_universe, max_frame, chunk_size, probe_radius=1.4, ncpu=8,
     selector = kwargs["selector"] if "selector" in kwargs else "all"
     vdw_map = kwargs["vdw_map"] if "vdw_map" in kwargs else None
 
-    bar_constructor = tqdm if not is_notebook() else ipython_tqdm
+    #bar_constructor = tqdm if not is_notebook() else ipython_tqdm
     # Above line is not compatible with ipywidet >= 8.0 for now ...
     bar_constructor = tqdm
     #print(f"CLI sasa Parameters: {mda_universe} {max_frame} {chunk_size} {probe_radius} {ncpu} {step}")

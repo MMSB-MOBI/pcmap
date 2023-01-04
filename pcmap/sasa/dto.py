@@ -1,8 +1,10 @@
 import numpy as np
 from ..io import is_notebook
-from tqdm import *
-from tqdm.notebook import tqdm as ipython_tqdm
 
+from tqdm import *
+#from tqdm.notebook import tqdm as ipython_tqdm
+
+#from tqdm.autonotebook import tqdm
 
 class SASA_Results():
     def __init__(self):
@@ -14,7 +16,7 @@ class SASA_Results():
         self.nresidue = 0
     # Add a progress bar here too, it takes time
     def parse(self, sasa_multi_frame_data):
-        bar_constructor = tqdm if not is_notebook() else ipython_tqdm
+        #bar_constructor = tqdm if not is_notebook() else ipython_tqdm
         # Above line is not compatible with ipywidet >= 8.0 for now ...
         bar_constructor = tqdm
         print(f"Compiling results over {self.nframe} snapshots")
