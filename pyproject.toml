@@ -21,8 +21,9 @@ python = ">=3.8,<3.11"
 docopt = "^0.6.2"
 pypstruct = "^0.1.2"
 numpy = "^1.19.0"
-ccmap = {path = "../ccmap/dist/ccmap-3.0.0-cp39-cp39-linux_x86_64.whl"}
 tqdm = "^4.64.1"
+ccmap = {path = "../ccmap/dist/ccmap-3.0.0-cp39-cp39-macosx_10_9_x86_64.whl"}
+ipykernel = "^6.20.0"
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
 MDAnalysis = "^2.3.0"
