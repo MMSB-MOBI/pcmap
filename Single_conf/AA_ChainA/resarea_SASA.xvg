@@ -1,4 +1,4 @@
-# This file was created Wed Jan  4 11:44:24 2023
+# This file was created Thu Jan  5 16:20:30 2023
 # Created by:
 #                       :-) GROMACS - gmx sasa, 2020.7 (-:
 # 
@@ -9,7 +9,7 @@
 #   gmx sasa -f ../AA.pdb -s ../AA.pdb -n /data1/lisbeth/SASA_Proj/Single_conf/AA/index.ndx -ndots 4800 -probe 0.191 -or /data1/lisbeth/SASA_Proj/Single_conf/AA/resarea_SASA.xvg -o /data1/lisbeth/SASA_Proj/Single_conf/AA/SASA.xvg
 # gmx sasa is part of G R O M A C S:
 #
-# Gravel Rubs Often Many Awfully Cauterized Sores
+# Good ROcking Metal Altar for Chronical Sinners
 #
 @    title "Area per residue over the trajectory"
 @    xaxis  label "Residue"
