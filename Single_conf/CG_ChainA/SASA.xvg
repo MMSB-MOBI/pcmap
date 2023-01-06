@@ -1,4 +1,4 @@
-# This file was created Wed Jan  4 11:44:14 2023
+# This file was created Thu Jan  5 16:19:01 2023
 # Created by:
 #                       :-) GROMACS - gmx sasa, 2020.7 (-:
 # 
@@ -9,7 +9,7 @@
 #   gmx sasa -f ../CG.pdb -s ../CG.pdb -n /data1/lisbeth/SASA_Proj/Single_conf/CG/index.ndx -ndots 4800 -probe 0.191 -or /data1/lisbeth/SASA_Proj/Single_conf/CG/resarea_SASA.xvg -o /data1/lisbeth/SASA_Proj/Single_conf/CG/SASA.xvg
 # gmx sasa is part of G R O M A C S:
 #
-# Giant Rising Ordinary Mutants for A Clerical Setup
+# GROup of MAchos and Cynical Suckers
 #
 @    title "Solvent Accessible Surface"
 @    xaxis  label "Time (ps)"
@@ -22,4 +22,4 @@
 @ legend 0.78, 0.8
 @ legend length 2
 @ s0 legend "Total"
-1000000.000  136.855
+1000000.000  126.662
