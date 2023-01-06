@@ -58,7 +58,7 @@ def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map
 # a thread-based function recevieving input tuple iterator and calling ccmap
 def sasa_frame_task(*_args):
     args=_args[0]
-    data = ccmap.sasa_multi_mda_np_arrays(*args[:5], rtype=args[5], probe=args[6], hres=args[7])
+    data = ccmap.sasa_multi_mda(*args[:5], rtype=args[5], probe=args[6], hres=args[7])
     
     return data
 
