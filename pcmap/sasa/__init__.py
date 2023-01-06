@@ -7,8 +7,8 @@ from .dto import SASA_Results
 from MDAnalysis import Universe
 
 
-def compute_multi_sasa_from_frame(frame:Universe, npos=None, step=1, selector="all", chunk_sz=5, probe=1.4, ncpu=8):
-    _ = compute_sasa_frame(frame, npos, chunk_sz, probe, ncpu, selector=selector, step=step)
+def compute_multi_sasa_from_frame(frame:Universe, npos=None, step=1, selector="all", chunk_sz=5, probe=1.4, ncpu=8, hres=False):
+    _ = compute_sasa_frame(frame, npos, chunk_sz, probe, ncpu, selector=selector, step=step, hres=hres)
     res = SASA_Results()
     res.parse(_)
     return res

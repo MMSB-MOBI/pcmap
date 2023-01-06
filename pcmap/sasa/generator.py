@@ -10,7 +10,7 @@ from tqdm import *
 
 #from tqdm.autonotebook import tqdm
 
-def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map, probe_radius=1.4):
+def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map, probe_radius=1.4, hres=False):
 
     atom_selection = None
     try:      
@@ -32,7 +32,8 @@ def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map
     max_frame = max_frame if max_frame < len(trajectory) and max_frame > 0 else len(trajectory)
     #print(f"Processing a total of {max_frame} trajectory elements in {chunk_size} long chunks")
     steps_log = " " if step == 1 else f" [skip step {step}]"
-    log = f"Computing SASA w/ a {probe_radius}A radius probe over a total of {max_frame} snapshots of {len(names)} particles each" + steps_log
+    log = "" if not hres else "HighResolution:: "
+    log += f"Computing SASA w/ a {probe_radius}A radius probe over a total of {max_frame} snapshots of {len(names)} particles each" + steps_log
     def _iter():
         positions_buffer = []
         _n = 0 # all items
@@ -46,25 +47,24 @@ def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map
             n += 1   
             if n%chunk_size == 0:
                 yield( positions_buffer, names, resnames,\
-                    resids, segids, vdw_map, probe_radius )
+                    resids, segids, vdw_map, probe_radius, hres )
 
                 positions_buffer = []
         if positions_buffer:
             yield( positions_buffer, names, resnames,\
                     resids, segids, vdw_map, probe_radius )                   
-            #data = ccmap.np_read_multicoor(positions_buffer, names, resnames,\
-            #                       resids, segids, rtype=vdw_map, probe=1.4)   
+          
     return ( log, _iter(), max_frame )
 # a thread-based function recevieving input tuple iterator and calling ccmap
 def sasa_frame_task(*_args):
     args=_args[0]
-    data = ccmap.np_read_multicoor(*args[:5], rtype=args[5], probe=args[6])
+    data = ccmap.sasa_multi_mda_np_arrays(*args[:5], rtype=args[5], probe=args[6], hres=args[7])
     
     return data
 
 #https://stackoverflow.com/questions/51601756/use-tqdm-with-concurrent-futures
 # seems ok, just need t check results order and vstack like above
-def run_with_pbar(mda_universe, max_frame, chunk_size, probe_radius=1.4, ncpu=8, step=1, **kwargs):
+def run_with_pbar(mda_universe, max_frame, chunk_size, probe_radius=1.4, ncpu=8, step=1, hres=False, **kwargs):
     selector = kwargs["selector"] if "selector" in kwargs else "all"
     vdw_map = kwargs["vdw_map"] if "vdw_map" in kwargs else None
 
@@ -92,7 +92,7 @@ def run_with_pbar(mda_universe, max_frame, chunk_size, probe_radius=1.4, ncpu=8,
 
     (log, iter_frame, frame_num) = sasa_frames_iter(mda_universe, max_frame, chunk_size, step,\
                                     selector, vdw_map,\
-                                    probe_radius=probe_radius)
+                                    probe_radius=probe_radius, hres=hres)
     print(log)   
     with bar_constructor(total=frame_num) as pbar:
         # let's give it some more threads:
