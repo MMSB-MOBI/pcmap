@@ -107,15 +107,5 @@ def run_with_pbar(mda_universe, max_frame, chunk_size, probe_radius=1.4, ncpu=8,
                 results.append( future.result() )
                 pbar.update(chunk_size)
             pbar.close()
-    """
-        for result in results:
-            for k in ['resname', 'resID', 'chainID']:
-                if res_accumul[k] is None:
-                    res_accumul[k] = np.array(result[k])
-            for curr_pose_sasa_list in result['sasa']:
-                res_accumul['sasa'] = np.array(curr_pose_sasa_list) if res_accumul['sasa'] is None\
-                                      else np.vstack( [res_accumul['sasa'], curr_pose_sasa_list] )
-    """
-   # print(results)
     return results
-    #return res_accumul
+    

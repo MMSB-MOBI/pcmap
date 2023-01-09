@@ -7,19 +7,29 @@ from tqdm import *
 #from tqdm.autonotebook import tqdm
 
 class SASA_Results():
-    def __init__(self):
+    def __init__(self, is_a_frame):
         self.resname  = None
         self.resID    = None
         self.chainID  = None
         self.sasa     = None
         self.nframe   = 0
         self.nresidue = 0
+        self.raw = None
+        self.is_a_frame = is_a_frame
     # Add a progress bar here too, it takes time
-    def parse(self, sasa_multi_frame_data):
-        #bar_constructor = tqdm if not is_notebook() else ipython_tqdm
+    def parse(self, data):
+        if self.is_a_frame:
+            self._parse_a_frame(data)
+        else : 
+            self._parse_raw(data)
+    def _parse_a_frame(self, sasa_multi_frame_data):
+         #bar_constructor = tqdm if not is_notebook() else ipython_tqdm
         # Above line is not compatible with ipywidet >= 8.0 for now ...
         bar_constructor = tqdm
-        print(f"Compiling results over {self.nframe} snapshots")
+        c = 0
+        for _ in sasa_multi_frame_data:
+            c += len(_['sasa'])
+        print(f"Compiling results over {c} snapshots")
         with bar_constructor(total=self.nframe) as pbar:
             for result in sasa_multi_frame_data:
                 for k in ['resname', 'resID', 'chainID']:
@@ -31,9 +41,13 @@ class SASA_Results():
                     self.sasa = np.array(curr_pose_sasa_list) if self.sasa is None\
                                         else np.vstack( [self.sasa, curr_pose_sasa_list] )
                     pbar.update(1)
-
+    def _parse_raw(self, list_sasa_dict):
+        self.raw = list_sasa_dict
     ## Add a progres bar if necessary but not sure
     def stats(self):
+        if not self.is_a_frame:
+            raise TypeError("Cannot process statistics on non frame results, still ou can inspect me through \".raw\" attribute")
+
         stats = [ ( i_tup, np.zeros(self.nframe) )\
             for i_res, i_tup in enumerate(zip(self.resname, self.resID, self.chainID) )\
         ]

@@ -1,3 +1,27 @@
+class WrongMapType(Exception):
+    pass
+
+class WrongResName(Exception):
+    pass
+class WrongAtomName(Exception):
+    pass
+class WrongAtomRadius(Exception):
+    pass
+
+def validate_map(maybe_map):
+    if not type(maybe_map) is dict:
+        raise WrongMapType(f"Provided Atom map is not a dict => { type(maybe_map) }")
+    for resn, data in maybe_map.items():
+        if not type(resn) is str:
+            raise WrongResName(f"Provided residue is not a string => { type(resn) }")      
+        for (name, radius) in data:
+            if not type(name) is str:
+                raise WrongAtomName(f"Provided atom name is not a string => { type(name) }")  
+            if not type(radius) is float:
+                raise WrongAtomRadius(f"Provided atom radius is not a float => { type(radius) }")  
+
+    return maybe_map
+    
 atom_default_radii = {
     "ALA": [
         ("N", 1.64), ("CA", 1.88), ("C", 1.61), ("O", 1.42), ("CB", 1.88)],
@@ -79,7 +103,8 @@ atom_default_radii = {
         ("CB", 1.88),
         ("CG1", 1.88),
         ("CG2", 1.88),
-        ("CD1", 1.88)],
+        ("CD1", 1.88),
+        ("CD", 1.88)],
     "LEU": [
         ("N", 1.64),
         ("CA", 1.88),
@@ -274,4 +299,5 @@ martini3_dbg_radii = {
   ('SC3', 1.91),
   ('SC4', 1.91)],
  'VAL': [('BB', 2.3), ('SC1', 2.3)],
- 'W': [('W', 2.64)]}
+ 'W': [('W', 2.64)],
+ '*':[('OT1', ), ('OT2', )]}
