@@ -38,8 +38,8 @@ def pdb_list_iter(pdb_file_list, max_frame, chunk_size, step, selector, vdw_map,
             if n%chunk_size == 0:
                 yield( dictorized_atoms_buffer, vdw_map, probe_radius, hres )
 
-                positions_buffer = []
-        if positions_buffer:
+                dictorized_atoms_buffer = []
+        if dictorized_atoms_buffer:
             yield( dictorized_atoms_buffer, vdw_map, probe_radius, hres )                   
           
     return ( log, _iter(), max_frame )

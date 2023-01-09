@@ -49,6 +49,7 @@ def run_with_pbar(iter,  task, iter_args, iter_kwargs, n_worker, chunk_sz):
     (log, iter_frame, frame_num) = iter(*iter_args, **iter_kwargs)
     print(log)
 
+    inc_step = chunk_sz if chunk_sz < frame_num else frame_num
     with bar_constructor(total=frame_num) as pbar:
         # let's give it some more threads:
         with ThreadPoolExecutor(max_workers=n_worker) as executor:
@@ -60,6 +61,6 @@ def run_with_pbar(iter,  task, iter_args, iter_kwargs, n_worker, chunk_sz):
                 #arg = futures[future]
                 # future seems to reduce to hash -> a number ?
                 results.append( future.result() )
-                pbar.update(chunk_sz)
+                pbar.update(inc_step)
             pbar.close()
     return results
