@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pcmap"
-version = "0.5.0"
+version = "1.0.0"
 description = "Computing contact map for protein structures"
 authors = ["Guillaume Launay <guillaume.launay@ibcp.fr>"]
 license = "GPL"
@@ -23,10 +23,11 @@ pypstruct = "^0.1.2"
 numpy = "^1.19.0"
 tqdm = "^4.64.1"
 ipykernel = "^6.20.0"
-ccmap = {path = "../ccmap/dist/ccmap-3.0.0-cp39-cp39-macosx_10_9_x86_64.whl"}
+ccmap = "^4.0.0"
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
 MDAnalysis = "^2.3.0"
+setuptools = "^65.6.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
