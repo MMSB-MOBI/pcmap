@@ -3,8 +3,27 @@ import re
 from pathlib import Path
 
 """
+    Extract segiID from a string
+    Expecting "segid A or segid B ..." format
+"""
+def parse_selector(selector_expr):
+    if selector_expr is None:
+        return None
+    if selector_expr == "all":
+        return None
+    opt_segIDs = []
+    try:
+        _ = selector_expr.split(" or ")
+        for sel in _:
+            opt_segIDs.append( re.match(r'^segid (\S+)', sel)[1] )
+    except Exception as e:
+        raise ValueError(f"atom selector can be \"all\" or of the form \"segid A or segid B ...\" here \"{ selector }\"")
+
+    return opt_segIDs
+
+"""
     Parse a pdb file and return dictorized atoms of specified segID
-    without the hydorgen atoms
+    without the hydrogen atoms
 """
 def pdb_file_dictorize_noH(pdb_file_path, segID=None):
     pdbREC = parseFilePDB(filename=pdb_file_path)

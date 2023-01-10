@@ -281,3 +281,10 @@ which will return (only a sample is shown here):
     ]
 }
 ```
+
+## Computing Solvant Accessible Surface Area
+The pcmap package implements a point-count based technique for solvant accessible surface area computation.
+Exclusin solvant sphere surface are discretized as Fibonacci grid based on Rodrigo Azevedo Moreira da Silva implementation and surface calculation follows A.Gonzalez [method](https://arxiv.org/pdf/0912.4540.pdf).
+
+### SASA of one PDB file
+
