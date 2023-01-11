@@ -33,7 +33,9 @@ def pdb_list_iter(pdb_file_list, max_frame, chunk_size, step, selector, vdw_map,
                 _n += 1
                 continue
             dictorized_atoms_buffer.append( pdb_file_dictorize_noH(pdb_file, opt_segIDs) )
-           
+            if len(dictorized_atoms_buffer['name']) == 0:
+                raise ValueError(f"Selector \"{selector}\" returned an empty atom set!")
+
             n += 1   
             if n%chunk_size == 0:
                 yield( dictorized_atoms_buffer, vdw_map, probe_radius, hres )

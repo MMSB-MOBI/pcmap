@@ -15,6 +15,9 @@ def sasa_frames_iter(md_universe, max_frame, chunk_size, step, selector, vdw_map
     resids    = atom_selection.resids
     segids    = atom_selection.segids
    
+    if len(atom_selection.names) == 0:
+        raise ValueError(f"Selector \"{selector}\" returned an empty atom set!")
+
 
     trajectory = md_universe.trajectory
     if max_frame is None:
