@@ -1,3 +1,5 @@
+import os
+
 import click
 import pypstruct
 from pypstruct.coordinates import Structure
@@ -52,9 +54,6 @@ def parse_triplet(ctx, param, value) -> None | tuple[float, float, float]:
         raise click.BadParameter(f"{param} value must be float triplet")
 
 
-import os
-
-
 def path_writable(ctx, param, file_path):
     # If the file does not exist, check if the directory is writable
     if not os.path.exists(file_path):
@@ -64,6 +63,8 @@ def path_writable(ctx, param, file_path):
             raise click.BadParameter(f"Output folder doesnt exist '{dirname}'")
         if not os.access(dirname, os.W_OK):
             raise click.BadParameter(f"Output folder is not writable '{dirname}'")
+        return file_path
+
     # If the file exists, check if it is writable
     if not os.access(file_path, os.W_OK):
         raise click.BadParameter(f"Output file is invalid '{file_path}'")

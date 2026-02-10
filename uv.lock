@@ -9,7 +9,7 @@ resolution-markers = [
 
 [[package]]
 name = "ccmap"
-version = "4.1"
+version = "4.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -17,12 +17,12 @@ dependencies = [
     { name = "numpy", version = "2.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/7c/05e3214337b8ce88a27be1c8f261e48b2d83f091c837d8a7c9a04cc1d897/ccmap-4.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:91f30df0e98c6fdb3eb89ab9ac199f42c0a6da860321fda1a798376cc4635c0a", size = 47910, upload-time = "2026-02-09T11:05:59.62Z" },
-    { url = "https://files.pythonhosted.org/packages/3e/08/571e4e05ac35768f3f16a954464655ccd150aa1dc5df0a369c1d61033b7d/ccmap-4.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:d541380d68a1084aee357d8ac9a96c5e5f8a2d720bd47922fa69ad1775085e17", size = 47914, upload-time = "2026-02-09T11:06:00.62Z" },
-    { url = "https://files.pythonhosted.org/packages/d9/08/9ba99abd523b1581e715f392020137d4e78b24afb2d9639d5ee123e5d622/ccmap-4.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:96209022d5aa81355b364c0029ca0414211c177332ed778a91c73e1c599fb42a", size = 48112, upload-time = "2026-02-09T11:06:01.439Z" },
-    { url = "https://files.pythonhosted.org/packages/b8/be/d2e7d1bddedd2c630060dc9bec51e222e117dbe38d820f9da53b1f8cf69c/ccmap-4.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:23567651f15578ea8c59af31a7a5695b40c64758e88d8a437d8b2394d73461a3", size = 48120, upload-time = "2026-02-09T11:06:02.264Z" },
-    { url = "https://files.pythonhosted.org/packages/ab/c7/fc11d1d618b6097c0524b98168c03c747570057f102789afe4fb70a22c40/ccmap-4.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:1ec6db955baf101e49fd7256e1ecf560ccfd4d61491c1bc94cfef15f3e3c0a66", size = 48101, upload-time = "2026-02-09T11:06:03.629Z" },
-    { url = "https://files.pythonhosted.org/packages/72/4f/88b77fb494b2b6189a5ac0201437d21214891d92e6a19baedcc07a6aef5a/ccmap-4.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:644cd2169bf978672ca60f139aedbd11ad3971fd120d3ff208fb2db1a74641e8", size = 47983, upload-time = "2026-02-09T11:06:04.923Z" },
+    { url = "https://files.pythonhosted.org/packages/16/a4/6689e0d2a8037e9bede5b40815cf1950fb9941e01bdafa3326d61b0e1589/ccmap-4.1.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ca5f7d02b19144a6a63f9f72cd6fb7884e3667034b2cbf4685cbde5f3a7651bd", size = 47920, upload-time = "2026-02-10T15:31:12.897Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/91/d9eb4350ef916b5e19d2376980ed29325b52ef20fd52a2ae7827899784e4/ccmap-4.1.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:adad311ac61447e630a063a9a92cb0569b300aed1a1d31a2a386935a966efbc6", size = 47917, upload-time = "2026-02-10T15:31:13.896Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/4a/f92c38aadf0cae580f7a5ed52d5948249e85111812044ccb3779bbbfcb65/ccmap-4.1.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:247be7456709c868ca0d50447ad4d4499e46eeb9114aeb1ad4cb16643231462d", size = 48125, upload-time = "2026-02-10T15:31:15.133Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/bc/ae138c83b070a16511f43a49ffbadaef451e83b600992faba83f240cf3fa/ccmap-4.1.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:5bdc4438be84d38fae1138d3b121f0431c517098bc113febbec94f8e2b4129c4", size = 48132, upload-time = "2026-02-10T15:31:16.147Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/ef/8d28e6a0866e706830ae760836f4c0f91c6e606fdd4184a3916566f68751/ccmap-4.1.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:efb28f44fd73fcb06141512d69c94482c4bd24d8f0b7a4db49438d42e45270ee", size = 48103, upload-time = "2026-02-10T15:31:17.634Z" },
+    { url = "https://files.pythonhosted.org/packages/8f/73/ee1c37f84581002ac58b81f7a992ce308ab46c594e0cc5ac4f66bff26892/ccmap-4.1.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:1fba30ff33e4a7cd4801dbe4a66b88d67e6a9a8330c464347ab0aabfac29cbfb", size = 47984, upload-time = "2026-02-10T15:31:18.675Z" },
 ]
 
 [[package]]
@@ -424,7 +424,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ccmap", specifier = ">=4.1" },
+    { name = "ccmap", specifier = ">=4.1.1" },
     { name = "numpy", specifier = ">=2.0.2" },
     { name = "pypstruct", specifier = ">=0.1.1" },
     { name = "rich-cli", specifier = ">=1.8.1" },
