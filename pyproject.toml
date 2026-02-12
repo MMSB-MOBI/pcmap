@@ -34,9 +34,9 @@ ccmap = { path = "../ccmap/dist/ccmap-4.1.1.tar.gz" }
 [project.scripts]
 pcmap-monomer = "pcmap.bin.monomer:compute_monomer"
 pcmap-dimer   = "pcmap.bin.dimer:compute_dimer"
-pcmap-zdock   = "pcmap.bin.z_dimer:compute_z_dimer"
+pcmap-dimer-z   = "pcmap.bin.z_dimer:compute_z_dimer"
 pcmap-many    = "pcmap.bin.many:compute_many"
-pcmap-z-many  = "pcmap.bin.z_many:compute_many"
+pcmap-many-z  = "pcmap.bin.z_many:compute_many"
 
 [build-system]
 requires = ["uv_build>=0.10.0,<0.11.0"]
