@@ -1,6 +1,9 @@
 # pcmap : A python module to compute contact map of proteins
 pcmap is a PYTHON 3.X library designed to compute pairwise amino acid contacts and residues Solvant Accessible Surface Area in protein stuctures. Structures must be provided as PDB coordinates or MDAnalysis trajectory files. Contacts are computed inside a single PDB file or across two PDB files structures. The library can compute one to thousands sets of contacts. Results are produced in JSON format and contacts are encoded in a simple dictionary structure described in the **OUTPUT** section.
 
+## Contact Map release candidate 
+This is the JOSS release version of the pcmap package with all contact map only features
+
 ## Installation
 `pip install pcmap`
 
@@ -281,114 +284,4 @@ which will return (only a sample is shown here):
     1.46)
     ]
 }
-```
-
-## Computing Solvant Accessible Surface Area
-The pcmap package implements a point-count based technique for solvant accessible surface area computation.
-Exclusion solvant sphere surface are discretized as Fibonacci grid based on Rodrigo Azevedo Moreira da Silva implementation and surface calculation follows A.Gonzalez [method](https://arxiv.org/pdf/0912.4540.pdf).
-
-A single function can process multiple PDB files or snapshots along a trajectory
-The first positional parameter is the source of one of two possible types: a list of paths to PDB files or a MDAnalysis Universe object. The API is designed to easily process All Atoms of CG structures.
-
-##### Options are:
-
-* `npos:Int`, the total number of elements to process
-* `step: Int`, the increment between two consecutive processed elements
-* `selector:str`, A simple segid selector: a string of the form "segid A or segid B ..."
-* `probe:float`, the radius of the water probe in Ang.
-* `hres:Boolean`, if set to True increase the Fibonacci grid resolution, trading accuracy for speed
-* `vdw_map:Dict`, a map a VDW radii, not defined it will be guessed from the Universe object. For pdb inputs a default all atom map is used.
-* `martini3:Boolean`, if set to True the default martini3 VDW radii map is used, overriding the default all atom radii map (usefull for martini3 PDB records).
-##### Multithreading options are:
-
-* `chunk_sz:Int` the number of elements to process per task
-* `ncpu:Int`, the number of workers
-
-```python
-import MDAnalysis as md
-from pcmap.sasa import compute_many
-```
-
-### Working with MDAnalysis trajectory
-
-```python
-ucg = md.Universe('../LSB_data/SPC_L11_CG_2.tpr', '../LSB_data/SPC_L11_CG_1_whole_skip100.xtc')
-
-sasa_res = compute_many(ucg,npos=50,\
-        chunk_sz=5, selector="segid seg_0_A", probe=1.91, hres=True)
-```
-
-The returned object is a SASA_Results with the following properties:
-
-* `resname:np.array`
-* `resID:np.array`
-* `chainID:np.array`
-* `sasa:np.2Darray`
-* `nframe:Int`
-* `nresidue:Int`
-
-##### Compute the average and sigma SASA of each residue along the trajectory with `SASA_Results.stats()`
-```python
-sasa_res.stats()
-#Displays
-#[(('MET', '1', 'seg_0_A'), 180.49615112304687, 21.59135138757801),
-# (('LEU', '2', 'seg_0_A'), 71.09777526855468, 31.050710406745228),
-# (('SER', '3', 'seg_0_A'), 70.42540771484374, 8.279207237924606),
-# (('LEU', '4', 'seg_0_A'), 106.15115112304687, 9.595877493939815),
-# (('ASP', '5', 'seg_0_A'), 32.37488525390625, 15.482186278685225),
-#  ...
-# ]
-```
-
-### Working with PDB files
-
-#### A single PDB file
-Results are returned as a simple Dict.
-```python
-from pcmap.sasa import compute_from_pdb
-pdb_path = "./Single_conf/AA.pdb"
-n = 5
-
-sasa_res = compute_from_pdb(pdb_path, selector="segid A", probe=1.4)
-sasa_res
-#Displays
-#{'freeASA': [{'resname': 'MET',
-#   'resID': '0 ',
-#   'chainID': 'A',
-#   'SASA': 168.6180419921875,
-#   'frac': 0.8308700323104858},
-#  {'resname': 'LEU',
-#   'resID': '1 ',
-#   'chainID': 'A',
-#   'SASA': 136.68359375,
-#   'frac': 0.8641166090965271},
-# ...
-# ]}
-```
-
-#### Several PDB files
-
-Results are returned as a SASA_Results objects, with a `raw` attributes which stores a simple list of Dict.
-```python
-from pcmap.sasa import compute_many
-pdb_path = "./Single_conf/AA.pdb"
-n = 100
-
-sasa_res = compute_many([ pdb_path for _ in range(0, n) ],npos=50,\
-           chunk_sz=5, selector="segid A", probe=1.4, hres=True)
-sasa_res.raw
-#Displays
-# [
-# [{'freeASA': [{'resname': 'MET',
-#     'resID': '0 ',
-#     'chainID': 'A',
-#     'SASA': 167.74444580078125,
-#     'frac': 0.8317462801933289},
-#    {'resname': 'LEU',
-#     'resID': '1 ',
-#     'chainID': 'A',
-# ...
-# }],
-# ...
-#]
 ```
