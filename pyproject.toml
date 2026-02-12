@@ -1,34 +1,48 @@
-[tool.poetry]
+[project]
 name = "pcmap"
 version = "1.0.0"
-description = "Computing contact map for protein structures"
-authors = ["Guillaume Launay <guillaume.launay@ibcp.fr>"]
-license = "GPL"
+description = "Computing contact map and Solvent Accessibility for protein structures"
+authors = [
+    {name = "Guillaume Launay", email = "guillaume.launay@univ-lyon1.fr"}
+ ]
+license = "GPL-3.0-or-later"
 classifiers=[
               "Intended Audience :: Science/Research",
               "License :: OSI Approved :: MIT License",
               "Programming Language :: Python :: 3",
               "Topic :: Scientific/Engineering :: Bio-Informatics",
               "Topic :: Software Development :: Libraries :: Python Modules",
-              "Development Status :: 5 - Production/Stable" 
+              "Development Status :: 5 - Production/Stable"
        ]
 homepage="https://github.com/MMSB-MOBI/pcmap"
 keywords=['protein', 'structure', 'atomic contact', 'SASA']
-#include=["data/*"]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "ccmap",
+    "mdanalysis>=2.7.0",
+    "numpy>=1.26.4",
+    "pypstruct>=0.1.2",
+    "rich-cli>=1.8.1",
+    "rich-click>=1.9.7",
+    "tqdm>=4.67.3",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.8,<3.11"
-docopt = "^0.6.2"
-pypstruct = "^0.1.2"
-numpy = "^1.19.0"
-tqdm = "^4.64.1"
-ipykernel = "^6.20.0"
-ccmap = "^4.0.0"
-MDAnalysis = "^2.3.0"
-[tool.poetry.dev-dependencies]
-jupyter = "^1.0.0"
-setuptools = "^65.6.3"
+[tool.uv.sources]
+ccmap = { path = "../ccmap/dist/ccmap-4.1.1.tar.gz" }
+
+[project.scripts]
+pcmap-monomer = "pcmap.bin.monomer:compute_monomer"
+pcmap-dimer   = "pcmap.bin.dimer:compute_dimer"
+pcmap-zdock   = "pcmap.bin.z_dimer:compute_z_dimer"
+pcmap-many    = "pcmap.bin.many:compute_many"
+pcmap-z-many  = "pcmap.bin.z_many:compute_many"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.10.0,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+]
