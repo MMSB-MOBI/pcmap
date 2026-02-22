@@ -21,9 +21,9 @@ authors:
     # corresponding: true # (This is how to denote the corresponding author)
     affiliation: 1
 affiliations:
- - name: LBMC
+ - name: Laboratory of Biology and Modelling of the Cell, Ecole Normale Supérieure de Lyon, CNRS UMR 5239, Inserm U1293, University Claude Bernard Lyon 1, Lyon, France 
    index: 1   
- - name: MMSB
+ - name: Molecular Microbiology and Structural Biochemistry, UMR 5086 CNRS, University Claude Bernard Lyon 1, Lyon, France
    index: 2
 
 date: 09 February 2026
@@ -37,48 +37,49 @@ bibliography: paper_assets/pcmap.bib
 
 # Summary
 
-Decades of research in Structural biologiy led to the accumulation of vast knowledge structural knowledge with [@burley_updated_2025] further expands with Deep Learing method[@jumper_highly_2021].
-Application of Molecular modeling to develop drugs, study the molecular details of biological process.
-Many of tehese iological process are drvie by specific 
+Decades of research in structural biology have led to the accumulation of a vast structural knowledge of molecular macromolecules, notably proteins[@burley_updated_2025]. This experimental knowledge served as training corpus for deep learning methods[@jumper_highly_2021], which predictions led to a massive expansion of the structural space of known proteins structures[@fleming_alphafold_2025].
+Molecular modeling thrives on this knowledge to achieve critical applications such as the molecular mechanics of biological processes, the identification of molecular causes of diseases or the rational development of drugs.
+At the molecular level, biological processes are indeed driven by specific short- and mid-range physical interactions[@dill_molecular_2010]. Drug interaction modes for example correspond to specific chemical interactions between the drug molecule and its target. Likewise, biological function are carried out by specifc modes of association between proteins.
+A compact representation of biomolecular structure, like proteins, can be obtained by filtering only the pair of atoms in chemical interactions (ie. physical proximity).
+Thereby, full molecular structures can be further compressed in so-called contact matrix, a sparse data structure registering only pair of atoms closer in space than a parameter distance treshold. 
+Contact matrix are effective descriptiors of protein folds (when applied to single proteins), protein-protein interactions (when applied to multimeric protein structures or functional molecular motions (when applied to molecular dynamic simulation).
+<!-- 
+Critical associations between specific amino acids can be identified from the distance matrix.
+Applied to molecular dynamics data, contact matrices are typically used to identify relevant functional motions.
+-->
 
-A major contribtuion to protzein stability and aa tions are short and mid range moelcular intectio,n (electroratic vdw).
-
-A convienrient represnration of rptein strucuter can be made by patiwirese distances between atoms.
-The distances can be conbveniatnely be stored into pairwiese distance matrix.
-Such matrces ahave proven ti be effective descitoporit of protein fold when applied to single proitein.
-Statiublitsing secondary structure elemnt s corresponds to specific regions of the distnfe matrix.
-effective desritproi of peotein-protein assoaction surface when distance are compute between atoms of seprated proteins.
-Where critival associaiton betwene specif amino acid can be identified frepm the distznce matrix
-When applied to molceualrt dynamics data, distancesmatrix are ripycially uised to identify relevant functional motions
-In drug design, docking protocols aims at identiyfin the relevant interaction mode betwenn target and prey mocleuls.
-Thousands of poisssible associaotnn mldoes needs to be ranked to identify the functironall ones, contact allowing fast still accurate charactreriont of the assoaicain modes. 
-The pcmap packages provides fasta computation of amino acid pairwse in protein structure.
-
+The identification of functionaly relevent interaction modes between molecules is paramount in molecuar modeling. In typical modeling pipeline, thousands of molecular complexes are generated and subsequent processing is required to identify the relevant inteaction modes. In such situations, encoding the molecular structures by their contact maps allow for their fast, yet accurate, processing. To answer this needs, the `pcmap` package provides fast computation of amino acid pairwise distances in protein structures.
 
 # Statement of need
-In a first appraoch, the detection of relvenat disntace between pair of atoms in a structure would rerqire computation of all possible pariswise distance making this probkemen size quadratic with resprco to the totacal number of atoms.
-The atomic coordiantes of the protein structure are projected into of 3D mesh. The dimensions of the meh cell are chosen such that the set of atomic pairwise distances effectively computed is reduced the atom population within a cell Mesh projection.
+A naive approach to detect the relevant distances between pair of atoms in a structure would require the computation of all possible pairwise distances. This makes the problem size quadratic with respect to the total number of atoms in the system.
+The `pcmap` package reduces this complexity by projecting atomic coordiantes of protein structure into three dimensional mesh. The parameters of the mesh are chosen such that the set of atomic pairwise distances effectively computed is limited to the atom population within a cell and the ones in direct contact. 
 
-
-
-Some `stuff` [@launay_evaluation_2020]`
 # State of the field     
-Alternative efficient implementation of molecular distance matrix softxware exists{}, but they whether required the installation of third party software or not suited for the analysis of large batch of structure.
-Was applied to previous study[@launay_evaluation_2020].
+Alternative efficient implementation of molecular distance matrix softxware exists[@mdanalysis_2016; @mdanalysis_2011; @abraham_gromacs_2015], but they either required the installation of third party software or not suited for the analysis of large batch of structures. The presented Python package is an alternative lightweight, self consistent and yet efficient method for contact map computation, previously applied to a protein-protein associations study[@launay_evaluation_2020].
 
 # Software design
 
-Front-end Python library, parsing of inputs and the thread mnagnagemet
-Mesh calculation are carreid out bu the CPython extension[@ccmap]
-The APi is meant to be used on cli, on native python daat structure or on mdanalysis objects[@michaud-agrawal_mdanalysis_2011,@gowers_mdanalysis_2016]. These fucntions can be called from user Python code for production poruporses or indode jupyter notebook for protiptyping or data analysis.
-Molecular modeling pipeline often involves the estiamtion of structure produced by various softwares. For this situaition, the pcmap package features executable program from the terminal.
-
+The `pcmap` package is a Python library, which parses molecular structures, perform mutli-thread distance compuations and produces the resulting contact map in JSON format.
+To achieve speed performance, protein structures are projected onto a three dimensional mesh managed by the associated CPython extension[@ccmap].
+The `pcmap` package can be used on native python data structures or on PDB protein coordinate files[@burley_updated_2025]. The API can be called from user Python code for production purposes or inside jupyter notebook for prototyping and data analysis.
+Because, molecular modeling pipeline often involves the processing of structure produced by various softwares, the `pcmap` package features the executables `pcmap-monomer`, `pcmap-dimer` and `pcmap-many` that can be invoked from the terminal.
 
 # Usage and Performances
+The `pcmap` modules exposes the two following functions: `contactMap` to compute the contact map of straight protein coordinates and `contactMapThroughTransform` to first transform initial coordinates and then compute their contact map.
+Positional parameters can either be single or list of paths to protein coordinate files in PDB format[@burley_updated_2025]. In the following examples, `c1` will store the internal contact map of a single protein while `c2` will store the contact maps of three pairs of structures
 ```python
-from pcmap import contactMap
-contactMap("PATH_TO/PDB_FILE_A", "PATH_TO/PDB_FILE_B")
+from contactMap,contactMapThroughTransform import pcmap
+
+c1 = pcmap.contactMap("data/1A2K_r_u.pdb")
+c2 = pcmap.contactMap(
+  ["structOne_A.pdb","structTwo_A.pdb", "structThree_A.pdb"],
+  ["structOne_B.pdb","structTwo_B.pdb", "structThree_B.pdb"]
+  )
 ```
+
+A variery of inputs can be passed to these functions to control their behaviour, additional documentation can be found on the project page[@pcmap].
+
+The computed contact map stores amino acid ranked according to their residue number and chain identifier in the PDB record. To ensure that contacts are registred only once they are declared with the residue of the lowest rank (aka root) and list of their partners (aka partners). The corresponding JSON format is the following:
 
 ```json
 {"type": "contactList",
@@ -93,19 +94,24 @@ contactMap("PATH_TO/PDB_FILE_A", "PATH_TO/PDB_FILE_B")
   ]
 }
 ```
-   
 
-![Caption for example figure.\label{fig:perf}](paper_assets/perf.png){ width=20% }
+The C implementation makes it possible for the underlying mesh manupulation functions to release Python Global Interpreter Lock. Hence, "actual" multithreading can be achieved and performances scale decently with the number of workers\autoref{fig:perf}.   
 
-and referenced from text using \autoref{fig:perf}.
+![For this benchmark, up to 50000 protein-protein poses were generated and processed for three coordinate sets of increasing number of atoms: 2000(pdb code: 1GL1) 3500(pdb code: 1F34) 10000(pdb code: 2VIS).\label{fig:perf}](paper_assets/perf.png){ width=20% }
+
+# Conclusion
+The `pcmap` Python package computes contact map of proteins was recently released for 3.9 to 3.14 Python under Linux or MacOS operating systems.
+The speed performance of the mesh routines underlying the `pcmap` module makes it a promising plateform for the future implementation of additional molecular metrics based on the local enviroment of atoms, such as solvant accessiblity calculations. 
 
 # AI usage disclosure
 
 No generative AI tools were used in the development of this software, the writing
 of this manuscript, or the preparation of supporting materials.
 
+<!--
 # Acknowledgements
 
 We acknowledge contributions People and support from
 
+-->
 # References
