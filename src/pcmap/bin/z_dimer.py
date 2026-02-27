@@ -71,6 +71,12 @@ from ..plugins import enrich_map
     callback=check_rich_and_atomic,
     is_eager=True,
 )
+@click.option(
+    "--apply",
+    is_flag=True,
+    help="output transformed dimer structure file",
+    default=False,
+)
 def compute_z_dimer(
     pdb_input_one: Structure,
     pdb_input_two: Structure,
@@ -81,6 +87,7 @@ def compute_z_dimer(
     dist: float,
     rich: bool,
     atomic: bool,
+    apply: bool,
 ):
     ccmap_as_json = core.zmap(
         pdb_input_one.atomDictorize,
@@ -90,8 +97,19 @@ def compute_z_dimer(
         tuple(ctr1),
         tuple(ctr2),
         d=dist,
+        apply=apply,
     )
     print(ccmap_as_json)
+
+    if apply:
+        # Update PDB containers
+        pdb_input_one.setCoordinateFromDictorize(pdb_input_one.atomDictorize)
+        pdb_input_two.setCoordinateFromDictorize(pdb_input_two.atomDictorize)
+        # Dump to coordinate files
+        with open("new_receptor.pdb", "w") as fp:
+            fp.write(str(pdb_input_one))
+        with open("new_ligand.pdb", "w") as fp:
+            fp.write(str(pdb_input_two))
 
 
 """

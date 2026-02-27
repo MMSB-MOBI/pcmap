@@ -18,8 +18,8 @@ pip install -e pcmap
 
 pcmap use the [ccmap package](https://github.com/MMSB-MOBI/ccmap) to compute contact maps. This package is a C extension currently available for the following architectures:
 
-* python3.8/OSX.10.14.6
-* python3.8/Ubuntu LTS
+* Python3.9 to Python3.14 Linux
+* Python3.9 to Python3.14 MacOS/ARM
 
 ## Data and testing
 
@@ -55,13 +55,13 @@ This will compute the pairwise amino acid contact within the molecule.
 
 Just pass the name of the PDB file to the `single` command.
 
-`python -m pcmap single data/1A2K_r_u.pdb`
+`pcmap-monomer data/1A2K_r_u.pdb`
 
 ##### Single two-body contact map
 
 Just pass the name of two PDB files to the `dimer` command.
 
-`python -m pcmap single data/1A2K_r_u.pdb`
+`pcmap-dimer data/1A2K_l_u.pdb data/1A2K_r_u.pdb`
 
 #### Many one-body contact maps
 
@@ -73,8 +73,8 @@ data/1A2K_r_u.pdb
 data/1A2K_l_u.pdb
 ```
 
-And pass it to the `many` command
-`python -m pcmap many --structures=sample.lst`
+And pass it to the `many` command along with a result file name.
+`pcmap-many sample.lst output.json`
 
 #### Computing many two-body contact map
 
@@ -88,7 +88,7 @@ data/1A2K_r_u.pdb   data/1A2K_l_u.pdb
 ```
 
 And pass it to the cli
-`python -m pcmap many --structures sample_dimer.lst`
+`pcmap-many sample_dimer.lst output.json`
 
 ### Two-body contact map: applying transformation prior to computation
 
@@ -98,9 +98,9 @@ When dealing with a two body system, it is often convenient to provide the initi
 As an example consider the following command:
 
 ```shell
-python -m pcmap dimer data/1A2K_r_u.pdb data/1A2K_l_u.pdb\
---euler=-1.961,2.066,-2.354 --trans=7.199,16.800,28.799\
---offA=-27.553,-8.229,-80.604 --offB=-67.006,0.11,-77.27
+pcmap-dimer-z data/1A2K_r_u.pdb data/1A2K_l_u.pdb\
+--euler -1.961,2.066,-2.354 --trl 7.199,16.800,28.799\
+--ctr1 -27.553,-8.229,-80.604 --ctr2 -67.006,0.11,-77.27
 ```
 
 1. `1A2K_r_u.pdb` coordinates will be centered onto the origin by the translation `[-27.553,-8.229,-80.604]`.
@@ -160,7 +160,7 @@ If True, add cartesian coordinates to contact map, only compatible with one sing
 
 ## PYTHON module
 
-The librairy can be used as a Python module to assemble the pipeline/program of your choice.
+The library can be used as a Python module to assemble the pipeline/program of your choice.
 First we need to import it.
 
 ```python
