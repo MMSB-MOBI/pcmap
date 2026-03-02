@@ -1,5 +1,5 @@
 # pcmap : A python module to compute contact map of proteins
-pcmap is a PYTHON 3.X library designed to compute pairwise amino acid contacts in protein stuctures. Contacts are computed inside a single PDB file or across two PDB files structures. The library can compute one to thousands sets of contacts. Results are produced in JSON format and contacts are encoded in a simple dictionary structure described in the **OUTPUT** section.
+pcmap is a PYTHON 3.X library designed to compute pairwise amino acid contacts in protein structures. Contacts are computed inside a single PDB file or across two PDB files structures. The library can compute one to thousands sets of contacts. Results are produced in JSON format and contacts are encoded in a simple dictionary structure described in the **OUTPUT** section.
 
 <!-- and residues Solvant Accessible Surface Area 
 Structures must be provided as PDB coordinates or MDAnalysis trajectory files. 
