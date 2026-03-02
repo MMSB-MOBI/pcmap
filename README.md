@@ -88,7 +88,9 @@ data/1A2K_r_u.pdb   data/1A2K_l_u.pdb
 ```
 
 And pass it to the cli
-`pcmap-many sample_dimer.lst output.json`
+```sh
+pcmap-many sample_dimer.lst output.json
+```
 
 ### Two-body contact map: applying transformation prior to computation
 
