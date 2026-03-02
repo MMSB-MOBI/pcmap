@@ -2,7 +2,7 @@
 pcmap is a PYTHON 3.X library designed to compute pairwise amino acid contacts and residues Solvant Accessible Surface Area in protein stuctures. Structures must be provided as PDB coordinates or MDAnalysis trajectory files. Contacts are computed inside a single PDB file or across two PDB files structures. The library can compute one to thousands sets of contacts. Results are produced in JSON format and contacts are encoded in a simple dictionary structure described in the **OUTPUT** section.
 
 ## Contact Map release candidate 
-This is the JOSS release version of the pcmap package with all contact map only features
+This is the JOSS release version of the pcmap package with contact map feature-only.
 
 ## Installation
 `pip install pcmap`
@@ -148,6 +148,7 @@ Usable on **Single two-body contact map** mode, dumps LIGAND transformed coordin
 
 Define the maximal pairwise distance between two heavy atoms to register amino acids contact.
 
+<!--
 ##### --encode [default=False]
 
 If True, contacts are returned as integers. Each integer encoding one pair of atoms/residues positions in contact with this simple formula.
@@ -159,7 +160,7 @@ If True, all atomic contacts are reported.
 ##### --rich [default=False]
 
 If True, add cartesian coordinates to contact map, only compatible with one single body atomic computation
-
+-->
 ## PYTHON module
 
 The library can be used as a Python module to assemble the pipeline/program of your choice.

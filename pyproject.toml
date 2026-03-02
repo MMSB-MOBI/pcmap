@@ -1,6 +1,6 @@
 [project]
 name = "pcmap"
-version = "1.0.0"
+version = "2.0.0"
 description = "Computing contact map and Solvent Accessibility for protein structures"
 authors = [
     {name = "Guillaume Launay", email = "guillaume.launay@univ-lyon1.fr"}
