@@ -50,7 +50,10 @@ A naive approach to detecting relevant distances between pairs of atoms in a str
 
 # State of the field  
 
-Alternative efficient implementations of molecular distance matrix software exist [@mdanalysis_2016; @mdanalysis_2011; @abraham_gromacs_2015], but they either require the installation of third-party software or are not suited for analyzing large batches of structures. The presented Python package is a lightweight, self-contained, and efficient alternative for contact map computation, previously applied to large scale structural studies of proteins[@tam_alphacutter_2023; @launay_evaluation_2020].
+Alternative efficient implementations of molecular distance matrix software exist [@mdanalysis_2016; @mdanalysis_2011; @abraham_gromacs_2015], but they either require the installation of third-party software or are not suited for analyzing large batches of structures. The presented Python package is a lightweight, self-contained, and efficient alternative for contact map computation.
+
+# Research impact statement
+The pcmap package addresses the frequent need for contact map computations in molecular modeling pipelines in a flexible (handles a variety of inputs) and scalable manner (supports multi-threading). As such, it has previously been applied to large-scale structural studies of proteins[@tam_alphacutter_2023; @launay_evaluation_2020].
 
 # Software design
 
